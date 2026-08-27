@@ -272,9 +272,14 @@ class TelemetryForegroundService : Service(), SensorEventListener {
             if (dpm.isDeviceOwnerApp(packageName)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     val executor = ContextCompat.getMainExecutor(applicationContext)
-                    dpm.clearApplicationUserData(adminComponent, targetPackage, executor) { pkg, success ->
-                        Log.i(TAG, "Limpieza de datos/caché de app de ventas ($pkg): exitoso=$success")
-                    }
+                    dpm.clearApplicationUserData(
+                        adminComponent,
+                        targetPackage,
+                        executor,
+                        DevicePolicyManager.OnClearApplicationUserDataListener { pkg, success ->
+                            Log.i(TAG, "Limpieza de datos/caché de app de ventas ($pkg): exitoso=$success")
+                        }
+                    )
                 }
             } else {
                 // Si no es Device Owner, matar procesos residuales de la app de ventas para liberar memoria
