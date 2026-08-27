@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RutaControl Telematics</string>
+    <string name="device_admin_label">RutaControl Device Controller</string>
+    <string name="device_admin_description">Permite el control seguro de la flota, bloqueo de ajustes y telemetría continua.</string>
+</resources>

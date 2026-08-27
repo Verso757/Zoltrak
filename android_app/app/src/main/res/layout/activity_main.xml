@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#0F172A"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RutaControl Telematics"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Servicio de Monitoreo en Tiempo Real (1Hz)"
+        android:textColor="#94A3B8"
+        android:textSize="14sp"
+        android:layout_marginBottom="32dp" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="● TRANSMITIENDO 1Hz A HOSTINGER"
+        android:textColor="#10B981"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvDeviceId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ID Dispositivo: Obteniendo..."
+        android:textColor="#CBD5E1"
+        android:textSize="12sp"
+        android:layout_marginBottom="48dp" />
+
+    <Button
+        android:id="@+id/btnToggleService"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Pausar Monitoreo"
+        android:backgroundTint="#334155"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnExitPin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Acceso Supervisor (PIN)"
+        android:backgroundTint="#1E293B"
+        android:textColor="#94A3B8" />
+
+</LinearLayout>

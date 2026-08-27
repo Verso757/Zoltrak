@@ -1,0 +1,14 @@
+# Permitir peticiones CORS desde cualquier origen para la telemetría y el dashboard
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+</IfModule>
+
+# Seguridad: Proteger archivos de configuración
+<Files "config/db.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+DirectoryIndex index.php
