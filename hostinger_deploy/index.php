@@ -683,9 +683,9 @@ $baseUrl = $protocol . $host;
                                 <div class="font-bold text-white text-[11px] mb-0.5">⚡ Reiniciar App Ventas</div>
                                 <div class="text-[10px] text-slate-400">Cierra y relanza el proceso</div>
                             </button>
-                            <button onclick="sendDeviceAction('CLEAR_APP_CACHE')" class="p-2.5 bg-slate-900 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500/50 rounded-lg text-left transition-all">
-                                <div class="font-bold text-white text-[11px] mb-0.5">🧹 Purgar Caché</div>
-                                <div class="text-[10px] text-slate-400">Libera memoria temporal</div>
+                            <button onclick="sendDeviceAction('CLEAR_SALES_APP_CACHE')" class="p-2.5 bg-slate-900 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500/50 rounded-lg text-left transition-all">
+                                <div class="font-bold text-white text-[11px] mb-0.5">🧹 Purgar Caché App Ventas</div>
+                                <div class="text-[10px] text-slate-400">Exclusivo app ventas (no toca telemetría)</div>
                             </button>
                             <button onclick="sendDeviceAction('SYNC_SETTINGS')" class="p-2.5 bg-slate-900 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500/50 rounded-lg text-left transition-all">
                                 <div class="font-bold text-white text-[11px] mb-0.5">📡 Sincronizar Reglas</div>

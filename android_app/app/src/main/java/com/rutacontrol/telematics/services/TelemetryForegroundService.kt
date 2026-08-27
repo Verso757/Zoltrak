@@ -198,8 +198,13 @@ class TelemetryForegroundService : Service(), SensorEventListener {
             command == "KILL_RESTART_SALES_APP" -> {
                 restartSalesApp()
             }
-            command == "CLEAR_APP_CACHE" -> {
-                clearAppCache()
+            command == "CLEAR_APP_CACHE" || command == "CLEAR_SALES_APP_CACHE" || command.startsWith("CLEAR_CACHE_PACKAGE:") -> {
+                val targetPackage = if (command.startsWith("CLEAR_CACHE_PACKAGE:")) {
+                    command.removePrefix("CLEAR_CACHE_PACKAGE:").trim()
+                } else {
+                    "com.empresa.ventas.movil"
+                }
+                clearSalesAppCache(targetPackage)
             }
             command == "SYNC_SETTINGS" -> {
                 Log.i(TAG, "Reglas y parámetros de flota sincronizados")
@@ -243,23 +248,41 @@ class TelemetryForegroundService : Service(), SensorEventListener {
 
     private fun restartSalesApp() {
         try {
+            val salesPackage = "com.empresa.ventas.movil"
             val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            activityManager.killBackgroundProcesses("com.rutacontrol.telematics")
-            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+            activityManager.killBackgroundProcesses(salesPackage)
+            val launchIntent = packageManager.getLaunchIntentForPackage(salesPackage)
             launchIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(launchIntent)
+            if (launchIntent != null) {
+                startActivity(launchIntent)
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error reiniciando app: ${e.message}")
+            Log.e(TAG, "Error reiniciando app de ventas: ${e.message}")
         }
     }
 
-    private fun clearAppCache() {
+    /**
+     * Limpieza de caché orientada exclusivamente a la aplicación de ventas / cobranza
+     */
+    private fun clearSalesAppCache(targetPackage: String = "com.empresa.ventas.movil") {
         try {
-            cacheDir.deleteRecursively()
-            externalCacheDir?.deleteRecursively()
-            Log.i(TAG, "Caché de memoria liberada con éxito")
+            val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val adminComponent = ComponentName(this, DeviceAdminPolicyReceiver::class.java)
+
+            if (dpm.isDeviceOwnerApp(packageName)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    dpm.clearApplicationUserData(adminComponent, targetPackage, mainExecutor) { pkg, success ->
+                        Log.i(TAG, "Limpieza de datos/caché de app de ventas ($pkg): exitoso=$success")
+                    }
+                }
+            } else {
+                // Si no es Device Owner, matar procesos residuales de la app de ventas para liberar memoria
+                val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                activityManager.killBackgroundProcesses(targetPackage)
+            }
+            Log.i(TAG, "Caché de App de Ventas ($targetPackage) purgada con éxito sin afectar telemetría")
         } catch (e: Exception) {
-            Log.e(TAG, "Error limpiando caché: ${e.message}")
+            Log.e(TAG, "Error limpiando caché de app de ventas: ${e.message}")
         }
     }
 

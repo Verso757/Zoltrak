@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS drivers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. Tabla de Logs de Telemetría GPS (Alta Frecuencia 1 Hz)
-CREATE TABLE IF NOT EXISTS telemetry_logs (
+-- 3. Tabla de Logs y Puntos de Telemetría GPS (Alta Frecuencia 1 Hz)
+CREATE TABLE IF NOT EXISTS telemetry_points (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     device_id INT NOT NULL,
     driver_id INT NULL,
@@ -68,12 +68,91 @@ CREATE TABLE IF NOT EXISTS telemetry_logs (
     is_charging BOOLEAN DEFAULT FALSE,
     recorded_at DATETIME(3) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_device_recorded (device_id, recorded_at DESC),
-    INDEX idx_driver_recorded (driver_id, recorded_at DESC),
-    CONSTRAINT fk_telemetry_device FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
+    INDEX idx_device_point (device_id, recorded_at DESC),
+    INDEX idx_driver_point (driver_id, recorded_at DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. Tabla de Clientes / Paradas de Ruta
+CREATE TABLE IF NOT EXISTS telemetry_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    device_id INT NOT NULL,
+    driver_id INT NULL,
+    latitude DECIMAL(10,7) NOT NULL,
+    longitude DECIMAL(10,7) NOT NULL,
+    speed_kmh DECIMAL(5,1) NOT NULL DEFAULT 0.0,
+    heading_deg SMALLINT DEFAULT 0,
+    accel_g DECIMAL(4,2) DEFAULT 0.00,
+    rpm_estimated INT DEFAULT 0,
+    fuel_rate_l_h DECIMAL(6,3) DEFAULT 0.000,
+    battery_level TINYINT DEFAULT 100,
+    is_charging BOOLEAN DEFAULT FALSE,
+    recorded_at DATETIME(3) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_device_recorded (device_id, recorded_at DESC),
+    INDEX idx_driver_recorded (driver_id, recorded_at DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Tabla de Liquidaciones & Cortes de Caja de Choferes
+CREATE TABLE IF NOT EXISTS driver_cash_shifts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    driver_id INT NOT NULL,
+    device_id INT NULL,
+    shift_date DATE NOT NULL,
+    opened_at DATETIME NOT NULL,
+    closed_at DATETIME NULL,
+    initial_cash_fund DECIMAL(10,2) DEFAULT 0.00,
+    total_sales_cash DECIMAL(10,2) DEFAULT 0.00,
+    total_tickets_sold INT DEFAULT 0,
+    fuel_expenses DECIMAL(10,2) DEFAULT 0.00,
+    declared_cash_amount DECIMAL(10,2) DEFAULT 0.00,
+    system_expected_cash DECIMAL(10,2) DEFAULT 0.00,
+    difference_amount DECIMAL(10,2) DEFAULT 0.00,
+    supervisor_verified_by VARCHAR(50) NULL,
+    status ENUM('abierto', 'cerrado_liquidado', 'con_diferencia') DEFAULT 'abierto',
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_shift_driver (driver_id, shift_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. Tabla de Venta de Boletos / Pasajes en Ruta
+CREATE TABLE IF NOT EXISTS ticket_sales (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    driver_id INT NOT NULL,
+    device_id INT NULL,
+    shift_id INT NULL,
+    ticket_folio VARCHAR(50) NOT NULL UNIQUE,
+    ticket_type VARCHAR(50) NOT NULL DEFAULT 'boleto_regular',
+    fare_price DECIMAL(10,2) NOT NULL DEFAULT 10.00,
+    quantity INT NOT NULL DEFAULT 1,
+    total_amount DECIMAL(10,2) NOT NULL DEFAULT 10.00,
+    payment_method ENUM('efectivo', 'tarjeta_prepago', 'qr_movil') DEFAULT 'efectivo',
+    latitude DECIMAL(10,7) NULL,
+    longitude DECIMAL(10,7) NULL,
+    printed_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ticket_driver (driver_id, printed_at DESC),
+    INDEX idx_ticket_shift (shift_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. Tabla de Cargas de Combustible (Diésel / Gasolina)
+CREATE TABLE IF NOT EXISTS fuel_refuels (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    driver_id INT NOT NULL,
+    vehicle_plate VARCHAR(20) NOT NULL,
+    odometer_km DECIMAL(10,2) NOT NULL,
+    liters_loaded DECIMAL(8,2) NOT NULL,
+    price_per_liter DECIMAL(6,2) NOT NULL,
+    total_cost DECIMAL(10,2) NOT NULL,
+    gas_station_name VARCHAR(150) NULL,
+    ticket_number VARCHAR(50) NULL,
+    ticket_photo_url VARCHAR(255) NULL,
+    fuel_level_before INT DEFAULT 20,
+    fuel_level_after INT DEFAULT 100,
+    refueled_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_fuel_driver (driver_id, refueled_at DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Tabla de Clientes / Paradas de Ruta
 CREATE TABLE IF NOT EXISTS route_stops (
     id INT AUTO_INCREMENT PRIMARY KEY,
     driver_id INT NOT NULL,
@@ -89,11 +168,10 @@ CREATE TABLE IF NOT EXISTS route_stops (
     arrived_at DATETIME NULL,
     completed_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_driver_stops (driver_id, stop_sequence),
-    CONSTRAINT fk_stop_driver FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE CASCADE
+    INDEX idx_driver_stops (driver_id, stop_sequence)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 5. Tabla de APKs & Control de Versiones OTA
+-- 8. Tabla de APKs & Control de Versiones OTA
 CREATE TABLE IF NOT EXISTS apk_releases (
     id INT AUTO_INCREMENT PRIMARY KEY,
     app_name VARCHAR(100) NOT NULL DEFAULT 'RutaControl Telematics',
@@ -109,7 +187,7 @@ CREATE TABLE IF NOT EXISTS apk_releases (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 6. Tabla de Configuración Global de Flota
+-- 9. Tabla de Configuración Global de Flota
 CREATE TABLE IF NOT EXISTS fleet_settings (
     id INT PRIMARY KEY DEFAULT 1,
     supervisor_pin VARCHAR(6) NOT NULL DEFAULT '2026',
@@ -117,6 +195,7 @@ CREATE TABLE IF NOT EXISTS fleet_settings (
     speed_limit_kmh INT NOT NULL DEFAULT 70,
     max_idle_minutes INT NOT NULL DEFAULT 10,
     sudden_braking_g DECIMAL(4,2) NOT NULL DEFAULT 0.35,
+    sales_app_package VARCHAR(150) NOT NULL DEFAULT 'com.empresa.ventas.movil' COMMENT 'Paquete específico de la app de ventas para purga de caché',
     wifi_ssid VARCHAR(100) DEFAULT 'RutaControl_Almacen_5G',
     wifi_password VARCHAR(100) DEFAULT 'Flota2026Secure!',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
