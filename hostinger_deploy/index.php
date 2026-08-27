@@ -1247,7 +1247,8 @@ $baseUrl = $protocol . $host;
             const qrJsonPayload = {
                 "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
                 "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": activeDownloadUrl,
-                "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": false,
+                "android.app.extra.PROVISIONING_MODE": 1,
+                "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
                 "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
                     "server_telemetry_url": "<?= $baseUrl ?>/api/telemetry.php",
                     "supervisor_pin": "<?= $settings['supervisor_pin'] ?>",

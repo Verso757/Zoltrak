@@ -67,6 +67,19 @@
             </intent-filter>
         </receiver>
 
+        <!-- Actividad de Cumplimiento de Políticas Android 12+ (Device Owner Provisioning) -->
+        <activity
+            android:name=".PolicyComplianceActivity"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.app.action.GET_PROVISIONING_MODE" />
+                <action android:name="android.app.action.ADMIN_POLICY_COMPLIANCE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- Device Admin Receiver para Enrolamiento Kiosk / Device Owner -->
         <receiver
             android:name=".receivers.DeviceAdminPolicyReceiver"

@@ -62,7 +62,8 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
   const provisioningPayload: Record<string, any> = {
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": apkDownloadUrl,
-    "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": false,
+    "android.app.extra.PROVISIONING_MODE": 1,
+    "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
       "supervisor_pin": supervisorPin,
       "force_gps_always": forceGpsAlwaysOn,
