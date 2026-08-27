@@ -271,7 +271,8 @@ class TelemetryForegroundService : Service(), SensorEventListener {
 
             if (dpm.isDeviceOwnerApp(packageName)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    dpm.clearApplicationUserData(adminComponent, targetPackage, mainExecutor) { pkg, success ->
+                    val executor = ContextCompat.getMainExecutor(applicationContext)
+                    dpm.clearApplicationUserData(adminComponent, targetPackage, executor) { pkg, success ->
                         Log.i(TAG, "Limpieza de datos/caché de app de ventas ($pkg): exitoso=$success")
                     }
                 }
