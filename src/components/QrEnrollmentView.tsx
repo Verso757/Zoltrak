@@ -27,6 +27,7 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
   const [wifiPassword, setWifiPassword] = useState('Flota2026Secure!');
   const [wifiSecurity, setWifiSecurity] = useState<'WPA' | 'WEP' | 'NONE'>('WPA');
   const [supervisorPin, setSupervisorPin] = useState(initialPin);
+  const [checksumType, setChecksumType] = useState<'signature' | 'package' | 'both' | 'none'>('signature');
   const [apkDownloadUrl, setApkDownloadUrl] = useState('https://zoltrak.websolutionsgarcia.com/uploads/apks/rutacontrol-latest.apk');
   const [apkChecksum, setApkChecksum] = useState('');
   const [includeWifi, setIncludeWifi] = useState(true);
@@ -70,8 +71,16 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
     }
   };
 
-  if (formattedChecksum) {
-    provisioningPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = formattedChecksum;
+  if (checksumType === 'signature' || checksumType === 'both') {
+    if (formattedChecksum) {
+      provisioningPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM"] = formattedChecksum;
+    }
+  }
+
+  if (checksumType === 'package' || checksumType === 'both') {
+    if (formattedChecksum) {
+      provisioningPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = formattedChecksum;
+    }
   }
 
   if (includeWifi && wifiSsid.trim()) {
@@ -103,7 +112,7 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
         }
       }
     );
-  }, [wifiSsid, wifiPassword, wifiSecurity, supervisorPin, apkDownloadUrl, apkChecksum, includeWifi, forceGpsAlwaysOn, disableFactoryReset]);
+  }, [wifiSsid, wifiPassword, wifiSecurity, supervisorPin, apkDownloadUrl, apkChecksum, checksumType, includeWifi, forceGpsAlwaysOn, disableFactoryReset]);
 
   const handleCopyJson = () => {
     navigator.clipboard.writeText(jsonString);
@@ -216,12 +225,44 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Checksum SHA-256 (Opcional si usas HTTPS confiable)</label>
+                <label className="font-semibold text-slate-700 block mb-1">Modo de Verificación Android Enterprise</label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => setChecksumType('signature')}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border text-left transition-colors ${
+                      checksumType === 'signature'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="block font-semibold">Signature (Firma)</span>
+                    <span className="text-[10px] opacity-75">Android 10, 11, 12+</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChecksumType('package')}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border text-left transition-colors ${
+                      checksumType === 'package'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="block font-semibold">Package (APK)</span>
+                    <span className="text-[10px] opacity-75">Hash del archivo</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">
+                  {checksumType === 'signature' ? 'Signature Checksum (SHA-256 Firma)' : 'Package Checksum (SHA-256 APK)'}
+                </label>
                 <input
                   type="text"
                   value={apkChecksum}
                   onChange={e => setApkChecksum(e.target.value)}
-                  placeholder="Dejar vacío o pegar hash SHA-256"
+                  placeholder="Base64 URL-Safe o Hex SHA-256"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white text-slate-800 font-mono text-[11px]"
                 />
               </div>

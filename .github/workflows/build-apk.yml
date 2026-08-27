@@ -30,10 +30,30 @@ jobs:
       - name: Generar Wrapper y Compilar APK Debug
         working-directory: ./android_app
         run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           gradle wrapper --gradle-version 8.4 --distribution-type bin
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace --info --no-daemon
+
+      - name: Extraer y Mostrar Hashes de Firma (Signature Checksums)
+        run: |
+          APK_PATH=$(find android_app/app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          echo "APK compilado encontrado en: $APK_PATH"
+          echo "================ HASHES PARA ANDROID ENTERPRISE QR ================"
+          # Extraer certificado SHA-256 usando apksigner
+          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs "$APK_PATH" || true
+          
+          # Calcular SHA-256 del certificado en Base64 URL-Safe directamente
+          HEX_CERT_SHA256=$(keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android | grep -i "SHA256:" | head -n 1 | awk '{print $2}' | tr -d ':')
+          echo "Signature SHA-256 (Hex): $HEX_CERT_SHA256"
+          
+          BASE64_SIG=$(echo "$HEX_CERT_SHA256" | xxd -r -p | base64 | tr '+/' '-_' | tr -d '=')
+          echo "Signature Checksum (Base64 URL-Safe para QR): $BASE64_SIG"
+          echo "===================================================================="
 
       - name: Guardar APK como Artefacto Descargable
         uses: actions/upload-artifact@v4

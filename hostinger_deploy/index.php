@@ -600,24 +600,46 @@ $baseUrl = $protocol . $host;
                             </ol>
                         </div>
 
-                        <!-- Selector de Modo de Checksum -->
-                        <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                            <label class="text-xs font-bold text-white block">Formato de Suma de Comprobación (Checksum):</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                                <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
-                                    <input type="radio" name="checksumMode" value="base64" checked onchange="regenerateQr()" class="text-indigo-500">
+                        <!-- Selector de Modo de Checksum Android Enterprise -->
+                        <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-white block">Verificación de Seguridad Android Enterprise:</label>
+                                <span class="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-800/50 px-2 py-0.5 rounded-full font-mono">Android 7 a 15+</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                                <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
+                                    <input type="radio" name="checksumMode" value="signature" checked onchange="regenerateQr()" class="text-indigo-500">
                                     <span>
-                                        <b class="text-indigo-300 block">Base64 URL-Safe (Oficial Google)</b>
-                                        <span class="text-slate-400 text-[10px]">Formato obligatorio de Android Enterprise</span>
+                                        <b class="text-indigo-300 block text-xs">Signature Checksum</b>
+                                        <span class="text-slate-400 text-[10px]">Recomendado Android 10+ (Firma APK)</span>
                                     </span>
                                 </label>
-                                <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
-                                    <input type="radio" name="checksumMode" value="none" onchange="regenerateQr()" class="text-indigo-500">
+                                <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
+                                    <input type="radio" name="checksumMode" value="package" onchange="regenerateQr()" class="text-indigo-500">
                                     <span>
-                                        <b class="text-slate-400 block">Sin Checksum</b>
-                                        <span class="text-slate-500 text-[10px]">Solo para versiones antiguas de Android</span>
+                                        <b class="text-emerald-300 block text-xs">Package Checksum</b>
+                                        <span class="text-slate-400 text-[10px]">Hash del archivo APK completo</span>
                                     </span>
                                 </label>
+                                <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
+                                    <input type="radio" name="checksumMode" value="both" onchange="regenerateQr()" class="text-indigo-500">
+                                    <span>
+                                        <b class="text-amber-300 block text-xs">Ambos (Dual Check)</b>
+                                        <span class="text-slate-400 text-[10px]">Firma + Archivo Base64</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Input opcional para Signature Checksum personalizada -->
+                            <div id="customSignatureBox" class="pt-1">
+                                <label class="text-[10px] text-slate-400 block mb-1">Firma del Certificado (Base64 URL-Safe o Hex):</label>
+                                <input 
+                                    type="text" 
+                                    id="customSignatureInput" 
+                                    placeholder="Opcional: pega el Signature Checksum de tu keystore" 
+                                    oninput="regenerateQr()"
+                                    class="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-300 text-[11px] font-mono focus:outline-none focus:border-indigo-500"
+                                />
                             </div>
                         </div>
 
@@ -1219,7 +1241,8 @@ $baseUrl = $protocol . $host;
         let qrcodeInstance = null;
 
         function regenerateQr() {
-            const selectedMode = document.querySelector('input[name="checksumMode"]:checked')?.value || 'base64';
+            const selectedMode = document.querySelector('input[name="checksumMode"]:checked')?.value || 'signature';
+            const customSig = document.getElementById('customSignatureInput')?.value?.trim();
             
             const qrJsonPayload = {
                 "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
@@ -1234,10 +1257,19 @@ $baseUrl = $protocol . $host;
                 }
             };
 
-            if (selectedMode === 'base64' && activeRawHex) {
-                const urlSafeBase64 = hexToUrlSafeBase64(activeRawHex);
-                if (urlSafeBase64) {
-                    qrJsonPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = urlSafeBase64;
+            // Convertir hash si aplica
+            const packageChecksumBase64 = activeRawHex ? hexToUrlSafeBase64(activeRawHex) : '';
+            const signatureChecksum = customSig ? (customSig.length === 64 ? hexToUrlSafeBase64(customSig) : customSig) : packageChecksumBase64;
+
+            if (selectedMode === 'signature' || selectedMode === 'both') {
+                if (signatureChecksum) {
+                    qrJsonPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM"] = signatureChecksum;
+                }
+            }
+
+            if (selectedMode === 'package' || selectedMode === 'both') {
+                if (packageChecksumBase64) {
+                    qrJsonPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = packageChecksumBase64;
                 }
             }
 
