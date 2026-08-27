@@ -451,7 +451,7 @@ class TelemetryForegroundService : Service(), SensorEventListener {
             val y = event.values[1]
             val z = event.values[2]
             val gMagnitude = (sqrt((x * x + y * y + z * z).toDouble()) / 9.80665).toFloat() - 1.0f
-            currentAccelG = String.format("%.2f", gMagnitude).toFloatOrNull() ?: 0.0f
+            currentAccelG = String.format(java.util.Locale.US, "%.2f", gMagnitude).toFloatOrNull() ?: 0.0f
         }
     }
 

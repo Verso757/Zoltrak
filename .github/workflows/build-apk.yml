@@ -32,13 +32,11 @@ jobs:
           gradle-version: '8.4'
           cache-disabled: true
 
-      - name: Generar Wrapper y Compilar APK Debug
+      - name: Compilar APK Debug
         working-directory: ./android_app
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
-          gradle wrapper --gradle-version 8.4 --distribution-type bin
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace --no-daemon --no-build-cache
+          gradle assembleDebug --stacktrace --no-daemon --no-build-cache
 
       - name: Guardar APK como Artefacto Descargable
         uses: actions/upload-artifact@v4
