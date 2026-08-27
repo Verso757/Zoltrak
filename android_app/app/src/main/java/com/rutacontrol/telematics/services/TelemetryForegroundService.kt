@@ -416,6 +416,7 @@ class TelemetryForegroundService : Service(), SensorEventListener {
         return Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) ?: "DEVICE_UNKNOWN"
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private fun getBatteryStatus(): Pair<Int, Boolean> {
         val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1

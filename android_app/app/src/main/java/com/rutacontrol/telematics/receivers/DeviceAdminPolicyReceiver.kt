@@ -47,7 +47,9 @@ class DeviceAdminPolicyReceiver : DeviceAdminReceiver() {
             
             // Bloquear apagado de Ubicación / GPS (Forzar precisión alta permanente)
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_LOCATION)
-            dpm.setLocationEnabled(adminComponent, true)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                dpm.setLocationEnabled(adminComponent, true)
+            }
 
             // Bloquear manipulación de Wi-Fi para choferes (Supervisor accede con PIN)
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_WIFI)

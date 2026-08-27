@@ -7,56 +7,75 @@
  * ============================================================
  */
 
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+
 require_once __DIR__ . '/config/db.php';
-$pdo = getDBConnection();
 
-// Cargar Choferes y Dispositivos
-$stmtDrivers = $pdo->query("
-    SELECT 
-        d.*,
-        dev.device_uid,
-        dev.device_model,
-        dev.battery_level,
-        dev.is_charging,
-        dev.current_apk_version,
-        dev.status as device_status,
-        dev.last_ping_at,
-        dev.pending_command
-    FROM drivers d
-    LEFT JOIN devices dev ON d.id = dev.assigned_driver_id
-    ORDER BY d.id ASC
-");
-$drivers = $stmtDrivers->fetchAll();
-
-// Cargar Todos los Dispositivos Enrolados
-$stmtDevices = $pdo->query("
-    SELECT 
-        dev.*,
-        d.name as driver_name,
-        d.vehicle_plate,
-        d.route_code,
-        d.route_name
-    FROM devices dev
-    LEFT JOIN drivers d ON dev.assigned_driver_id = d.id
-    ORDER BY dev.last_ping_at DESC
-");
-$devices = $stmtDevices->fetchAll();
-
-// Cargar Configuración
-$stmtSettings = $pdo->query("SELECT * FROM fleet_settings WHERE id = 1 LIMIT 1");
-$settings = $stmtSettings->fetch() ?: [
+$dbError = null;
+$drivers = [];
+$devices = [];
+$settings = [
     'supervisor_pin' => '2026',
     'telemetry_interval_sec' => 1,
     'speed_limit_kmh' => 70,
     'max_idle_minutes' => 10
 ];
+$apkReleases = [];
+$activeApk = null;
 
-// Cargar Todas las APKs registradas
-$stmtApks = $pdo->query("SELECT * FROM apk_releases ORDER BY is_active_production DESC, version_code DESC");
-$apkReleases = $stmtApks->fetchAll();
+try {
+    $pdo = getDBConnection();
 
-// APK Activa
-$activeApk = array_values(array_filter($apkReleases, fn($a) => $a['is_active_production'] == 1))[0] ?? ($apkReleases[0] ?? null);
+    // Cargar Choferes y Dispositivos
+    $stmtDrivers = $pdo->query("
+        SELECT 
+            d.*,
+            dev.device_uid,
+            dev.device_model,
+            dev.battery_level,
+            dev.is_charging,
+            dev.current_apk_version,
+            dev.status as device_status,
+            dev.last_ping_at,
+            dev.pending_command
+        FROM drivers d
+        LEFT JOIN devices dev ON d.id = dev.assigned_driver_id
+        ORDER BY d.id ASC
+    ");
+    $drivers = $stmtDrivers->fetchAll();
+
+    // Cargar Todos los Dispositivos Enrolados
+    $stmtDevices = $pdo->query("
+        SELECT 
+            dev.*,
+            d.name as driver_name,
+            d.vehicle_plate,
+            d.route_code,
+            d.route_name
+        FROM devices dev
+        LEFT JOIN drivers d ON dev.assigned_driver_id = d.id
+        ORDER BY dev.last_ping_at DESC
+    ");
+    $devices = $stmtDevices->fetchAll();
+
+    // Cargar Configuración
+    $stmtSettings = $pdo->query("SELECT * FROM fleet_settings WHERE id = 1 LIMIT 1");
+    $dbSettings = $stmtSettings->fetch();
+    if ($dbSettings) {
+        $settings = $dbSettings;
+    }
+
+    // Cargar Todas las APKs registradas
+    $stmtApks = $pdo->query("SELECT * FROM apk_releases ORDER BY is_active_production DESC, version_code DESC");
+    $apkReleases = $stmtApks->fetchAll();
+
+    // APK Activa
+    $activeApk = array_values(array_filter($apkReleases, fn($a) => $a['is_active_production'] == 1))[0] ?? ($apkReleases[0] ?? null);
+
+} catch (Exception $e) {
+    $dbError = $e->getMessage();
+}
 
 // Métricas de Resumen
 $totalDrivers = count($drivers);
@@ -144,6 +163,12 @@ $baseUrl = $protocol . $host;
 
             <!-- Resumen Rápido Derecho -->
             <div class="flex items-center gap-4 text-xs">
+                <?php if ($dbError): ?>
+                <div class="flex items-center gap-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-lg">
+                    <span>⚠️ Error MySQL: <?= htmlspecialchars(substr($dbError, 0, 50)) ?>...</span>
+                    <a href="test_diag.php" target="_blank" class="underline font-bold text-white ml-1">Ver Diagnóstico</a>
+                </div>
+                <?php endif; ?>
                 <div class="hidden xl:flex items-center gap-4 text-slate-400">
                     <div>Unidades: <b class="text-white"><?= $activeDrivers ?>/<?= $totalDrivers ?></b></div>
                     <div>Recorrido: <b class="text-white"><?= number_format($totalDistance, 1) ?> km</b></div>
