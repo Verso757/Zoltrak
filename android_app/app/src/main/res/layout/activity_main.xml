@@ -134,8 +134,6 @@
             android:backgroundTint="#0F172A"
             android:textColor="#CBD5E1"
             android:textSize="12sp"
-            android:strokeColor="#334155"
-            android:strokeWidth="1dp"
             android:layout_marginBottom="16dp" />
 
     </LinearLayout>
