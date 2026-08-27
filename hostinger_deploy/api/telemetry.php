@@ -21,9 +21,11 @@ require_once __DIR__ . '/../config/db.php';
 $pdo = getDBConnection();
 
 // ============================================================
-// METODO GET: Retorna la posición de todas las unidades (para el Mapa del Dashboard)
+// METODO GET: Retorna la posición de todas las unidades y rutas para el mapa a pantalla completa
 // ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $driverIdFilter = isset($_GET['driver_id']) ? (int)$_GET['driver_id'] : null;
+
     $stmt = $pdo->query("
         SELECT 
             d.id as driver_id,
@@ -53,10 +55,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ORDER BY d.id ASC
     ");
     $fleet = $stmt->fetchAll();
+
+    // Si se solicitó el recorrido detallado (trail) de un chofer específico:
+    $trail = [];
+    if ($driverIdFilter) {
+        $stmtTrail = $pdo->prepare("
+            SELECT latitude as lat, longitude as lng, speed_kmh as speed, recorded_at
+            FROM telemetry_logs
+            WHERE driver_id = ?
+            ORDER BY id DESC
+            LIMIT 200
+        ");
+        $stmtTrail->execute([$driverIdFilter]);
+        $trail = array_reverse($stmtTrail->fetchAll());
+    }
     
     echo json_encode([
         "status" => "ok",
         "fleet" => $fleet,
+        "selected_trail" => $trail,
         "total_active" => count($fleet),
         "timestamp" => date("Y-m-d H:i:s")
     ]);
@@ -85,12 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $battery    = isset($data['battery']) ? (int)$data['battery'] : 100;
     $isCharging = !empty($data['charging']) ? 1 : 0;
     $fuelRate   = isset($data['fuel_rate']) ? (float)$data['fuel_rate'] : 0.0;
-    $apkVersion = isset($data['apk_version']) ? trim($data['apk_version']) : 'v2.4.1';
+    $apkVersion = isset($data['apk_version']) ? trim($data['apk_version']) : 'v1.0.0';
 
     // 1. Buscar o auto-registrar el teléfono
-    $stmt = $pdo->prepare("SELECT id, assigned_driver_id FROM devices WHERE device_uid = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, assigned_driver_id, pending_command FROM devices WHERE device_uid = ? LIMIT 1");
     $stmt->execute([$deviceUid]);
     $device = $stmt->fetch();
+
+    $pendingCommand = null;
 
     if (!$device) {
         $token = bin2hex(random_bytes(16));
@@ -104,6 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $deviceId = (int)$device['id'];
         $driverId = $device['assigned_driver_id'] ? (int)$device['assigned_driver_id'] : null;
+        $pendingCommand = $device['pending_command'];
 
         $upd = $pdo->prepare("
             UPDATE devices 
@@ -111,6 +131,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE id = ?
         ");
         $upd->execute([$battery, $isCharging, $apkVersion, $deviceId]);
+
+        // Limpiar el comando una vez despachado al teléfono
+        if ($pendingCommand) {
+            $clr = $pdo->prepare("UPDATE devices SET pending_command = NULL WHERE id = ?");
+            $clr->execute([$deviceId]);
+        }
     }
 
     // 2. Guardar en histórico de telemetría (1 Hz)
@@ -138,13 +164,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updDriver->execute([$lat, $lng, $speed, $accelG, $heading, $status, $driverId]);
     }
 
-    // 4. Confirmación y ACK hacia el celular Android
+    // 4. Confirmación y ACK hacia el celular Android con comandos remotos y versión activa OTA
+    $stmtApk = $pdo->query("SELECT version_name, download_url, sha256_checksum FROM apk_releases WHERE is_active_production = 1 LIMIT 1");
+    $activeApk = $stmtApk->fetch();
+
     echo json_encode([
         "status" => "ok",
         "ack" => true,
         "server_time" => date("Y-m-d H:i:s"),
         "sync_interval_sec" => 1,
-        "supervisor_pin_hash" => "2026"
+        "supervisor_pin_hash" => "2026",
+        "latest_apk" => $activeApk ?: null,
+        "remote_command" => $pendingCommand // Si hay comando (OTA, reset cache, etc.)
     ]);
     exit;
 }

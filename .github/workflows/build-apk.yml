@@ -23,14 +23,16 @@ jobs:
         run: |
           yes | sdkmanager --licenses || true
 
-      - name: Configurar Gradle 8.4
+      - name: Configurar Gradle (Sin Cache Externa que Cause Error 400)
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.4'
+          cache-disabled: true
 
       - name: Compilar APK Debug
         working-directory: ./android_app
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: |
+          gradle assembleDebug --no-daemon --stacktrace --no-build-cache
 
       - name: Guardar APK como Artefacto Descargable
         uses: actions/upload-artifact@v4
@@ -38,3 +40,4 @@ jobs:
           name: RutaControl-Telematics-APK
           path: android_app/app/build/outputs/apk/debug/*.apk
           retention-days: 14
+
