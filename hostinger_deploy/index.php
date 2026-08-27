@@ -607,15 +607,15 @@ $baseUrl = $protocol . $host;
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
                                     <input type="radio" name="checksumMode" value="base64" checked onchange="regenerateQr()" class="text-indigo-500">
                                     <span>
-                                        <b class="text-indigo-300 block">Base64 URL-Safe (Oficial Android)</b>
-                                        <span class="text-slate-400 text-[10px]">Formato exacto de Android Enterprise DPC</span>
+                                        <b class="text-indigo-300 block">Base64 URL-Safe (Oficial Google)</b>
+                                        <span class="text-slate-400 text-[10px]">Formato obligatorio de Android Enterprise</span>
                                     </span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
                                     <input type="radio" name="checksumMode" value="none" onchange="regenerateQr()" class="text-indigo-500">
                                     <span>
-                                        <b class="text-emerald-300 block">HTTPS Directo (Sin Checksum)</b>
-                                        <span class="text-slate-400 text-[10px]">Descarga segura 100% libre de errores</span>
+                                        <b class="text-slate-400 block">Sin Checksum</b>
+                                        <span class="text-slate-500 text-[10px]">Solo para versiones antiguas de Android</span>
                                     </span>
                                 </label>
                             </div>

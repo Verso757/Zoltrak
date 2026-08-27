@@ -37,7 +37,27 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
 
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Helper to convert hex to url-safe base64
+  const formatChecksum = (input: string) => {
+    const trimmed = input.trim();
+    if (trimmed.length === 64 && /^[0-9a-fA-F]+$/.test(trimmed)) {
+      try {
+        const bytes = new Uint8Array(trimmed.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      } catch (e) {
+        return trimmed;
+      }
+    }
+    return trimmed;
+  };
+
   // Generate Android Enterprise Provisioning JSON
+  const formattedChecksum = formatChecksum(apkChecksum);
+
   const provisioningPayload: Record<string, any> = {
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": apkDownloadUrl,
@@ -50,8 +70,8 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
     }
   };
 
-  if (apkChecksum.trim()) {
-    provisioningPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = apkChecksum.trim();
+  if (formattedChecksum) {
+    provisioningPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = formattedChecksum;
   }
 
   if (includeWifi && wifiSsid.trim()) {
