@@ -37,16 +37,24 @@ header('Content-Type: text/html; charset=utf-8');
         require_once __DIR__ . '/config/db.php';
         
         $actionMsg = "";
-        if (isset($_POST['action']) && $_POST['action'] === 'repair_tables') {
+        if (isset($_POST['action']) && ($_POST['action'] === 'repair_tables' || $_POST['action'] === 'repair_columns')) {
             try {
                 $pdo = getDBConnection();
                 $sqlCreate = file_get_contents(__DIR__ . '/schema.sql');
                 // Quitar sentencias USE si existen
                 $sqlCreate = preg_replace('/USE\s+`?[a-zA-Z0-9_]+`?;/i', '', $sqlCreate);
                 $pdo->exec($sqlCreate);
-                $actionMsg = "<div class='ok' style='padding:1rem; background:#064e3b; border-radius:8px; margin-bottom:1rem;'>✅ ¡Tablas creadas y actualizadas exitosamente en MySQL!</div>";
+
+                // Migración segura de columnas faltantes
+                try {
+                    $pdo->exec("ALTER TABLE devices ADD COLUMN pending_command TEXT NULL COMMENT 'Comando pendiente para MDM u OTA'");
+                } catch (Exception $colEx) {
+                    // Ya existe la columna
+                }
+
+                $actionMsg = "<div class='ok' style='padding:1rem; background:#064e3b; border-radius:8px; margin-bottom:1rem;'>✅ ¡Esquema y columnas actualizadas exitosamente en MySQL!</div>";
             } catch (Exception $e) {
-                $actionMsg = "<div class='err' style='padding:1rem; background:#7f1d1d; border-radius:8px; margin-bottom:1rem;'>❌ Error al crear tablas: " . htmlspecialchars($e->getMessage()) . "</div>";
+                $actionMsg = "<div class='err' style='padding:1rem; background:#7f1d1d; border-radius:8px; margin-bottom:1rem;'>❌ Error al actualizar: " . htmlspecialchars($e->getMessage()) . "</div>";
             }
         }
 
@@ -72,12 +80,29 @@ header('Content-Type: text/html; charset=utf-8');
             }
             echo "</ul>";
 
-            if ($missingTables > 0) {
+            // Verificar columna pending_command en devices
+            $hasPendingCol = false;
+            try {
+                $colCheck = $pdo->query("SHOW COLUMNS FROM devices LIKE 'pending_command'");
+                $hasPendingCol = (bool)$colCheck->fetch();
+            } catch (Exception $e) {
+                $hasPendingCol = false;
+            }
+
+            echo "<h3>Verificación de Columnas Críticas:</h3><ul style='line-height: 1.8;'>";
+            if ($hasPendingCol) {
+                echo "<li>Columna <code>devices.pending_command</code>: <span class='ok'>Presente ✅</span></li>";
+            } else {
+                echo "<li>Columna <code>devices.pending_command</code>: <span class='err'>FALTA (provoca error 1054 Unknown column) ❌</span></li>";
+            }
+            echo "</ul>";
+
+            if ($missingTables > 0 || !$hasPendingCol) {
                 echo "
                 <form method='POST' style='margin-top:1.5rem;'>
-                    <input type='hidden' name='action' value='repair_tables'>
+                    <input type='hidden' name='action' value='repair_columns'>
                     <button type='submit' style='background:#4f46e5; color:white; font-weight:bold; padding:0.75rem 1.5rem; border:none; border-radius:8px; cursor:pointer; font-size:14px;'>
-                        🛠️ Crear / Reparar las $missingTables Tablas Faltantes en 1 Clic
+                        🛠️ Reparar Esquema y Agregar Columnas Faltantes en 1 Clic
                     </button>
                 </form>
                 ";

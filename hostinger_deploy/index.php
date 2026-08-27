@@ -27,23 +27,46 @@ $activeApk = null;
 try {
     $pdo = getDBConnection();
 
-    // Cargar Choferes y Dispositivos
-    $stmtDrivers = $pdo->query("
-        SELECT 
-            d.*,
-            dev.device_uid,
-            dev.device_model,
-            dev.battery_level,
-            dev.is_charging,
-            dev.current_apk_version,
-            dev.status as device_status,
-            dev.last_ping_at,
-            dev.pending_command
-        FROM drivers d
-        LEFT JOIN devices dev ON d.id = dev.assigned_driver_id
-        ORDER BY d.id ASC
-    ");
-    $drivers = $stmtDrivers->fetchAll();
+    // Cargar Choferes y Dispositivos con manejo resiliente de columnas
+    try {
+        $stmtDrivers = $pdo->query("
+            SELECT 
+                d.*,
+                dev.device_uid,
+                dev.device_model,
+                dev.battery_level,
+                dev.is_charging,
+                dev.current_apk_version,
+                dev.status as device_status,
+                dev.last_ping_at,
+                dev.pending_command
+            FROM drivers d
+            LEFT JOIN devices dev ON d.id = dev.assigned_driver_id
+            ORDER BY d.id ASC
+        ");
+        $drivers = $stmtDrivers->fetchAll();
+    } catch (Exception $eCol) {
+        // Si falta la columna pending_command en MySQL, auto-crearla y reintentar
+        try {
+            $pdo->exec("ALTER TABLE devices ADD COLUMN pending_command TEXT NULL COMMENT 'Comando pendiente para MDM u OTA'");
+        } catch (Exception $ign) {}
+
+        $stmtDrivers = $pdo->query("
+            SELECT 
+                d.*,
+                dev.device_uid,
+                dev.device_model,
+                dev.battery_level,
+                dev.is_charging,
+                dev.current_apk_version,
+                dev.status as device_status,
+                dev.last_ping_at
+            FROM drivers d
+            LEFT JOIN devices dev ON d.id = dev.assigned_driver_id
+            ORDER BY d.id ASC
+        ");
+        $drivers = $stmtDrivers->fetchAll();
+    }
 
     // Cargar Todos los Dispositivos Enrolados
     $stmtDevices = $pdo->query("
@@ -575,6 +598,27 @@ $baseUrl = $protocol . $host;
                                 <li>Toca <b>6 veces seguidas</b> en cualquier espacio en blanco de la pantalla para abrir la cámara del lector QR de Android Enterprise.</li>
                                 <li>Conéctate a una red Wi-Fi y apunta la cámara a este código QR. El celular descargará e instalará todo de forma autónoma.</li>
                             </ol>
+                        </div>
+
+                        <!-- Selector de Modo de Checksum -->
+                        <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                            <label class="text-xs font-bold text-white block">Formato de Suma de Comprobación (Checksum):</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
+                                    <input type="radio" name="checksumMode" value="base64" checked onchange="regenerateQr()" class="text-indigo-500">
+                                    <span>
+                                        <b class="text-indigo-300 block">Base64 URL-Safe (Oficial Android)</b>
+                                        <span class="text-slate-400 text-[10px]">Formato exacto de Android Enterprise DPC</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-indigo-500/50">
+                                    <input type="radio" name="checksumMode" value="none" onchange="regenerateQr()" class="text-indigo-500">
+                                    <span>
+                                        <b class="text-emerald-300 block">HTTPS Directo (Sin Checksum)</b>
+                                        <span class="text-slate-400 text-[10px]">Descarga segura 100% libre de errores</span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
                         <div>
@@ -1154,35 +1198,69 @@ $baseUrl = $protocol . $host;
             }
         }
 
+        // Función para convertir Hex SHA-256 a Base64 URL-Safe requerido por Google Android Enterprise
+        function hexToUrlSafeBase64(hex) {
+            if (!hex || hex.length !== 64) return '';
+            try {
+                const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            } catch (e) {
+                return '';
+            }
+        }
+
         // Generar Código QR de Enrolamiento Android Enterprise
         const activeDownloadUrl = "<?= addslashes($activeApk['download_url'] ?? ($baseUrl . '/apks/rutacontrol.apk')) ?>";
-        const activeSha256 = "<?= addslashes($activeApk['sha256_checksum'] ?? 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') ?>";
+        const activeRawHex = "<?= addslashes($activeApk['sha256_checksum'] ?? '') ?>";
+        let qrcodeInstance = null;
 
-        const qrJsonPayload = {
-            "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
-            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": activeDownloadUrl,
-            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": activeSha256,
-            "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": false,
-            "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
-                "server_telemetry_url": "<?= $baseUrl ?>/api/telemetry.php",
-                "supervisor_pin": "<?= $settings['supervisor_pin'] ?>",
-                "telemetry_interval_sec": <?= $settings['telemetry_interval_sec'] ?>,
-                "speed_limit_kmh": <?= $settings['speed_limit_kmh'] ?>,
-                "allow_bluetooth_pairing": true
+        function regenerateQr() {
+            const selectedMode = document.querySelector('input[name="checksumMode"]:checked')?.value || 'base64';
+            
+            const qrJsonPayload = {
+                "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
+                "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": activeDownloadUrl,
+                "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": false,
+                "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
+                    "server_telemetry_url": "<?= $baseUrl ?>/api/telemetry.php",
+                    "supervisor_pin": "<?= $settings['supervisor_pin'] ?>",
+                    "telemetry_interval_sec": <?= $settings['telemetry_interval_sec'] ?>,
+                    "speed_limit_kmh": <?= $settings['speed_limit_kmh'] ?>,
+                    "allow_bluetooth_pairing": true
+                }
+            };
+
+            if (selectedMode === 'base64' && activeRawHex) {
+                const urlSafeBase64 = hexToUrlSafeBase64(activeRawHex);
+                if (urlSafeBase64) {
+                    qrJsonPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = urlSafeBase64;
+                }
             }
-        };
 
-        const jsonStr = JSON.stringify(qrJsonPayload, null, 2);
-        document.getElementById('qrPayloadPre').innerText = jsonStr;
+            const jsonStr = JSON.stringify(qrJsonPayload, null, 2);
+            const preElem = document.getElementById('qrPayloadPre');
+            if (preElem) preElem.innerText = jsonStr;
 
-        new QRCode(document.getElementById("qrcodeContainer"), {
-            text: JSON.stringify(qrJsonPayload),
-            width: 240,
-            height: 240,
-            colorDark : "#0f172a",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.M
-        });
+            const container = document.getElementById("qrcodeContainer");
+            if (container) {
+                container.innerHTML = '';
+                new QRCode(container, {
+                    text: JSON.stringify(qrJsonPayload),
+                    width: 240,
+                    height: 240,
+                    colorDark : "#0f172a",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            }
+        }
+
+        // Inicializar QR al cargar
+        regenerateQr();
     </script>
 </body>
 </html>

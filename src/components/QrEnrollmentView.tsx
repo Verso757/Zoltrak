@@ -27,9 +27,9 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
   const [wifiPassword, setWifiPassword] = useState('Flota2026Secure!');
   const [wifiSecurity, setWifiSecurity] = useState<'WPA' | 'WEP' | 'NONE'>('WPA');
   const [supervisorPin, setSupervisorPin] = useState(initialPin);
-  const [installTelematics, setInstallTelematics] = useState(true);
-  const [installAutoVenta, setInstallAutoVenta] = useState(true);
-  const [installWhatsApp, setInstallWhatsApp] = useState(true);
+  const [apkDownloadUrl, setApkDownloadUrl] = useState('https://zoltrak.websolutionsgarcia.com/uploads/apks/rutacontrol-latest.apk');
+  const [apkChecksum, setApkChecksum] = useState('');
+  const [includeWifi, setIncludeWifi] = useState(true);
   const [forceGpsAlwaysOn, setForceGpsAlwaysOn] = useState(true);
   const [disableFactoryReset, setDisableFactoryReset] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -38,26 +38,29 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Generate Android Enterprise Provisioning JSON
-  const provisioningPayload = {
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receiver.DeviceAdminReceiver",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://storage.googleapis.com/rutacontrol-apks/rutacontrol-telematics-v2.4.1.apk",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "8f7a9d2e1b4c3f5a6b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a",
-    "android.app.extra.PROVISIONING_WIFI_SSID": wifiSsid,
-    "android.app.extra.PROVISIONING_WIFI_PASSWORD": wifiPassword,
-    "android.app.extra.PROVISIONING_WIFI_SECURITY_TYPE": wifiSecurity,
+  const provisioningPayload: Record<string, any> = {
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.rutacontrol.telematics/.receivers.DeviceAdminPolicyReceiver",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": apkDownloadUrl,
     "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": false,
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
       "supervisor_pin": supervisorPin,
       "force_gps_always": forceGpsAlwaysOn,
       "disable_factory_reset": disableFactoryReset,
-      "telemetry_server_url": "https://zoltrak.websolutionsgarcia.com/api/telemetry.php",
-      "apps_to_silent_install": [
-        ...(installTelematics ? ["https://storage.googleapis.com/rutacontrol-apks/rutacontrol-telematics-v2.4.1.apk"] : []),
-        ...(installAutoVenta ? ["https://storage.googleapis.com/rutacontrol-apks/autoventa-pro-v3.1.2.apk"] : []),
-        ...(installWhatsApp ? ["https://storage.googleapis.com/rutacontrol-apks/whatsapp-business-2.24.apk"] : [])
-      ]
+      "telemetry_server_url": "https://zoltrak.websolutionsgarcia.com/api/telemetry.php"
     }
   };
+
+  if (apkChecksum.trim()) {
+    provisioningPayload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = apkChecksum.trim();
+  }
+
+  if (includeWifi && wifiSsid.trim()) {
+    provisioningPayload["android.app.extra.PROVISIONING_WIFI_SSID"] = wifiSsid.trim();
+    if (wifiPassword) {
+      provisioningPayload["android.app.extra.PROVISIONING_WIFI_PASSWORD"] = wifiPassword;
+    }
+    provisioningPayload["android.app.extra.PROVISIONING_WIFI_SECURITY_TYPE"] = wifiSecurity;
+  }
 
   const jsonString = JSON.stringify(provisioningPayload, null, 2);
 
@@ -80,7 +83,7 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
         }
       }
     );
-  }, [wifiSsid, wifiPassword, wifiSecurity, supervisorPin, installTelematics, installAutoVenta, installWhatsApp, forceGpsAlwaysOn, disableFactoryReset]);
+  }, [wifiSsid, wifiPassword, wifiSecurity, supervisorPin, apkDownloadUrl, apkChecksum, includeWifi, forceGpsAlwaysOn, disableFactoryReset]);
 
   const handleCopyJson = () => {
     navigator.clipboard.writeText(jsonString);
@@ -167,52 +170,41 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
             </div>
           </div>
 
-          {/* Card 2: Applications to Install Silently */}
+          {/* Card 2: APK Download Location & Checksum */}
           <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-3">
             <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-slate-700" />
-              <span>2. Paquete de APKs a Auto-Instalar</span>
+              <Download className="w-4 h-4 text-slate-700" />
+              <span>2. Ubicación de Descarga del APK Oficial</span>
             </h3>
+            <p className="text-[11px] text-slate-500">
+              Android descargará el archivo .apk directamente desde esta URL HTTPS pública durante el enrolamiento de fábrica.
+            </p>
 
-            <div className="space-y-2 text-xs">
-              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-50">
+            <div className="space-y-2.5 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">URL de Descarga del APK (HTTPS)</label>
                 <input
-                  type="checkbox"
-                  checked={installTelematics}
-                  onChange={e => setInstallTelematics(e.target.checked)}
-                  className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
+                  type="url"
+                  value={apkDownloadUrl}
+                  onChange={e => setApkDownloadUrl(e.target.value)}
+                  placeholder="https://tudominio.com/uploads/apks/app-debug.apk"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white text-slate-800 font-mono text-[11px]"
                 />
-                <div>
-                  <span className="font-semibold text-slate-900 block">RutaControl Telematics v2.4.1</span>
-                  <span className="text-[11px] text-slate-500">Servicio de rastreo GPS en 2do plano & Kiosco</span>
-                </div>
-              </label>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Sube tu APK a tu Hostinger (Gestor de APKs) o usa tu URL de GitHub Releases.
+                </span>
+              </div>
 
-              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-50">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Checksum SHA-256 (Opcional si usas HTTPS confiable)</label>
                 <input
-                  type="checkbox"
-                  checked={installAutoVenta}
-                  onChange={e => setInstallAutoVenta(e.target.checked)}
-                  className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
+                  type="text"
+                  value={apkChecksum}
+                  onChange={e => setApkChecksum(e.target.value)}
+                  placeholder="Dejar vacío o pegar hash SHA-256"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white text-slate-800 font-mono text-[11px]"
                 />
-                <div>
-                  <span className="font-semibold text-slate-900 block">AutoVenta Móvil Pro v3.1.2</span>
-                  <span className="text-[11px] text-slate-500">Facturación y toma de pedidos en ruta</span>
-                </div>
-              </label>
-
-              <label className="flex items-center gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-50">
-                <input
-                  type="checkbox"
-                  checked={installWhatsApp}
-                  onChange={e => setInstallWhatsApp(e.target.checked)}
-                  className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
-                />
-                <div>
-                  <span className="font-semibold text-slate-900 block">WhatsApp Business v2.24</span>
-                  <span className="text-[11px] text-slate-500">Comunicación con almacén y clientes</span>
-                </div>
-              </label>
+              </div>
             </div>
           </div>
 
@@ -308,9 +300,9 @@ export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin =
               </div>
 
               <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg col-span-2 sm:col-span-1">
-                <span className="text-slate-400 block text-[10px]">APKs a Descargar</span>
-                <span className="font-semibold text-emerald-700 block mt-0.5">
-                  {[installTelematics, installAutoVenta, installWhatsApp].filter(Boolean).length} apps activas
+                <span className="text-slate-400 block text-[10px]">Modo</span>
+                <span className="font-semibold text-indigo-600 block mt-0.5">
+                  Device Owner / Kiosk
                 </span>
               </div>
             </div>

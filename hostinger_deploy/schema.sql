@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS devices (
     status ENUM('online', 'offline', 'warning', 'locked') DEFAULT 'online',
     monthly_data_mb DECIMAL(8,2) DEFAULT 0.00,
     api_auth_token VARCHAR(64) NOT NULL,
+    pending_command TEXT NULL COMMENT 'Comando pendiente para MDM u OTA',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_device_uid (device_uid),
     INDEX idx_last_ping (last_ping_at)
