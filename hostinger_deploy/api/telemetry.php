@@ -59,15 +59,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Si se solicitó el recorrido detallado (trail) de un chofer específico:
     $trail = [];
     if ($driverIdFilter) {
-        $stmtTrail = $pdo->prepare("
-            SELECT latitude as lat, longitude as lng, speed_kmh as speed, recorded_at
-            FROM telemetry_logs
-            WHERE driver_id = ?
-            ORDER BY id DESC
-            LIMIT 200
-        ");
-        $stmtTrail->execute([$driverIdFilter]);
-        $trail = array_reverse($stmtTrail->fetchAll());
+        try {
+            $stmtTrail = $pdo->prepare("
+                SELECT latitude as lat, longitude as lng, speed_kmh as speed, recorded_at
+                FROM telemetry_points
+                WHERE driver_id = ?
+                ORDER BY id DESC
+                LIMIT 200
+            ");
+            $stmtTrail->execute([$driverIdFilter]);
+            $trail = array_reverse($stmtTrail->fetchAll());
+        } catch (Exception $e) {
+            // Fallback si la tabla es telemetry_logs
+            try {
+                $stmtTrail = $pdo->prepare("
+                    SELECT latitude as lat, longitude as lng, speed_kmh as speed, recorded_at
+                    FROM telemetry_logs
+                    WHERE driver_id = ?
+                    ORDER BY id DESC
+                    LIMIT 200
+                ");
+                $stmtTrail->execute([$driverIdFilter]);
+                $trail = array_reverse($stmtTrail->fetchAll());
+            } catch (Exception $e2) {}
+        }
     }
     
     echo json_encode([
@@ -140,12 +155,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // 2. Guardar en histórico de telemetría (1 Hz)
-    $stmtLog = $pdo->prepare("
-        INSERT INTO telemetry_logs 
-        (device_id, driver_id, latitude, longitude, speed_kmh, heading_deg, accel_g, fuel_rate_l_h, battery_level, is_charging, recorded_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3))
-    ");
-    $stmtLog->execute([$deviceId, $driverId, $lat, $lng, $speed, $heading, $accelG, $fuelRate, $battery, $isCharging]);
+    try {
+        $stmtLog = $pdo->prepare("
+            INSERT INTO telemetry_points 
+            (device_id, driver_id, latitude, longitude, speed_kmh, heading_deg, accel_g, fuel_rate_l_h, battery_level, is_charging, recorded_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3))
+        ");
+        $stmtLog->execute([$deviceId, $driverId, $lat, $lng, $speed, $heading, $accelG, $fuelRate, $battery, $isCharging]);
+    } catch (Exception $e) {
+        // Fallback si la tabla se llama telemetry_logs
+        try {
+            $stmtLog = $pdo->prepare("
+                INSERT INTO telemetry_logs 
+                (device_id, driver_id, latitude, longitude, speed_kmh, heading_deg, accel_g, fuel_rate_l_h, battery_level, is_charging, recorded_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3))
+            ");
+            $stmtLog->execute([$deviceId, $driverId, $lat, $lng, $speed, $heading, $accelG, $fuelRate, $battery, $isCharging]);
+        } catch (Exception $e2) {
+            error_log("Error insertando telemetría: " . $e2->getMessage());
+        }
+    }
 
     // 3. Actualizar la última posición en la tabla de choferes
     if ($driverId) {

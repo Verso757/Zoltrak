@@ -81,7 +81,31 @@
             android:textStyle="bold"
             android:layout_marginBottom="10dp" />
 
-        <!-- Botón 2: Enlazar Impresora Bluetooth (Sin PIN) -->
+        <!-- Botón: Abrir WhatsApp -->
+        <Button
+            android:id="@+id/btnOpenWhatsApp"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="💬 Abrir WhatsApp"
+            android:backgroundTint="#16A34A"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Botón: Abrir Timemark / Check-In -->
+        <Button
+            android:id="@+id/btnOpenTimemark"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="📸 Abrir Timemark (Evidencias)"
+            android:backgroundTint="#0284C7"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Botón: Enlazar Impresora Bluetooth (Sin PIN) -->
         <Button
             android:id="@+id/btnBluetoothPrinter"
             android:layout_width="match_parent"
@@ -93,12 +117,12 @@
             android:textStyle="bold"
             android:layout_marginBottom="10dp" />
 
-        <!-- Botón 3: Limpiar Caché de App de Ventas (Sin PIN) -->
+        <!-- Botón: Limpiar Caché de App de Ventas (Sin PIN) -->
         <Button
             android:id="@+id/btnClearSalesCache"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="🧹 Limpiar Caché de App de Ventas"
+            android:text="🧹 Limpiar Caché de Apps"
             android:backgroundTint="#475569"
             android:textColor="#F1F5F9"
             android:textSize="13sp"
@@ -119,18 +143,18 @@
             android:id="@+id/btnToggleService"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Pausar Telemetría (PIN)"
+            android:text="Pausar Telemetría"
             android:backgroundTint="#1E293B"
             android:textColor="#94A3B8"
             android:textSize="12sp"
             android:layout_marginBottom="10dp" />
 
-        <!-- Botón 5: Menú de Ajustes Supervisor / Wi-Fi (Pide PIN 2026) -->
+        <!-- Botón 5: Menú de Ajustes Supervisor / Wi-Fi -->
         <Button
             android:id="@+id/btnExitPin"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="⚙️ Menú Supervisor (PIN 2026)"
+            android:text="⚙️ Menú Supervisor"
             android:backgroundTint="#0F172A"
             android:textColor="#CBD5E1"
             android:textSize="12sp"

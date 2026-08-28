@@ -15,7 +15,7 @@ export default function App() {
   const [selectedDriverId, setSelectedDriverId] = useState<string>(INITIAL_DRIVERS[0].id);
   const [alerts, setAlerts] = useState<DriverAlert[]>(INITIAL_ALERTS);
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
-  const [supervisorPin, setSupervisorPin] = useState<string>('2026');
+  const [supervisorPin, setSupervisorPin] = useState<string>('7575');
 
   const selectedDriver = useMemo(() => {
     return drivers.find((d) => d.id === selectedDriverId) || drivers[0];

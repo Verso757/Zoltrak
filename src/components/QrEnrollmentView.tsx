@@ -22,7 +22,7 @@ interface QrEnrollmentViewProps {
   initialPin?: string;
 }
 
-export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin = '2026' }) => {
+export const QrEnrollmentView: React.FC<QrEnrollmentViewProps> = ({ initialPin = '7575' }) => {
   const [wifiSsid, setWifiSsid] = useState('RutaControl_Almacen_5G');
   const [wifiPassword, setWifiPassword] = useState('Flota2026Secure!');
   const [wifiSecurity, setWifiSecurity] = useState<'WPA' | 'WEP' | 'NONE'>('WPA');

@@ -56,7 +56,7 @@ export const DriverMobileSimulator: React.FC<DriverMobileSimulatorProps> = ({
   const [pinActionTarget, setPinActionTarget] = useState<'unlock_app' | 'stop_tracking_service' | 'settings'>('stop_tracking_service');
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState<string | null>(null);
-  const [supervisorPin] = useState('2026'); // Default supervisor PIN
+  const [supervisorPin] = useState('7575');
 
   // Boot Simulation State
   const [isRebootingPhone, setIsRebootingPhone] = useState(false);
