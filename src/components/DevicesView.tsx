@@ -95,7 +95,7 @@ export const DevicesView: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [otaAppUrl, setOtaAppUrl] = useState('https://zoltrak.websolutionsgarcia.com/apks/app-ventas.apk');
   const [showOtaModal, setShowOtaModal] = useState(false);
-  const [targetInstallDevice, setTargetInstallDevice] = useState<FleetDevice | null>(null);
+  const [targetInstallDevice, setTargetInstallDevice] = useState<FleetDevice | 'ALL' | null>(null);
   const [installStatusMsg, setInstallStatusMsg] = useState<string | null>(null);
 
   // Poll real devices from Hostinger telemetry backend
@@ -232,7 +232,18 @@ export const DevicesView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <button
+            onClick={() => {
+              setTargetInstallDevice('ALL');
+              setShowOtaModal(true);
+            }}
+            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-colors shadow-sm flex items-center gap-2"
+          >
+            <Download className="w-4 h-4 text-cyan-400" />
+            <span>Instalar APK a Todos (Masivo)</span>
+          </button>
+          
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
@@ -240,7 +251,7 @@ export const DevicesView: React.FC = () => {
               placeholder="Buscar por chofer, modelo o IMEI..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white text-slate-800 w-64"
+              className="pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white text-slate-800 w-full sm:w-64"
             />
           </div>
         </div>
@@ -290,7 +301,9 @@ export const DevicesView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">Instalación Remota de Apps (MDM)</h3>
-                  <p className="text-xs text-slate-500">Dispositivo: {targetInstallDevice.deviceModel} ({targetInstallDevice.imei})</p>
+                  <p className="text-xs text-slate-500">
+                    Dispositivo: {targetInstallDevice === 'ALL' ? 'TODA LA FLOTA (Masivo)' : `${targetInstallDevice.deviceModel} (${targetInstallDevice.imei})`}
+                  </p>
                 </div>
               </div>
               <button 
@@ -303,6 +316,7 @@ export const DevicesView: React.FC = () => {
 
             <p className="text-xs text-slate-600">
               Selecciona o introduce la URL directa del APK. Como el teléfono está enrolado como <b>Device Owner</b>, la app se instalará en segundo plano sin pedir confirmación en la pantalla del chofer.
+              {targetInstallDevice === 'ALL' && <span className="block mt-1 text-amber-700 font-semibold bg-amber-50 p-2 rounded border border-amber-200">Atención: Esta orden se enviará a TODOS los dispositivos.</span>}
             </p>
 
             <div className="space-y-2">
@@ -376,7 +390,10 @@ export const DevicesView: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleSendRemoteInstallCommand(targetInstallDevice.imei, otaAppUrl, otaAppUrl.split('/').pop() || 'app.apk')}
+                onClick={() => {
+                  const targetUid = targetInstallDevice === 'ALL' ? 'ALL_DEVICES' : targetInstallDevice.imei;
+                  handleSendRemoteInstallCommand(targetUid, otaAppUrl, otaAppUrl.split('/').pop() || 'app.apk');
+                }}
                 className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-colors shadow-sm flex items-center gap-1.5"
               >
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
