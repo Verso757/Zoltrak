@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.os.UserManager
 import android.provider.Settings
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -25,6 +26,10 @@ import com.rutacontrol.telematics.receivers.DeviceAdminPolicyReceiver
 import com.rutacontrol.telematics.services.TelemetryForegroundService
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     private lateinit var tvStatus: TextView
     private lateinit var tvDeviceId: TextView
