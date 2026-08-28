@@ -183,3 +183,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(["status" => "error", "message" => "Acción no reconocida"]);
     exit;
 }
+
+// ============================================================
+// METODO DELETE: Borrar dispositivo
+// ============================================================
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $uid = $_GET['device_uid'] ?? '';
+    if ($uid) {
+        // Obtenemos el ID
+        $stmt = $pdo->prepare("SELECT id FROM devices WHERE device_uid = ?");
+        $stmt->execute([$uid]);
+        $dev = $stmt->fetch();
+        if ($dev) {
+            $devId = $dev['id'];
+            $pdo->prepare("DELETE FROM telemetry_points WHERE device_id = ?")->execute([$devId]);
+            $pdo->prepare("DELETE FROM telemetry_logs WHERE device_id = ?")->execute([$devId]);
+            $pdo->prepare("DELETE FROM devices WHERE id = ?")->execute([$devId]);
+        }
+        echo json_encode(["status" => "ok", "message" => "Dispositivo borrado"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Falta device_uid"]);
+    }
+    exit;
+}
