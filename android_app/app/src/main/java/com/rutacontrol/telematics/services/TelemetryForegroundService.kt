@@ -293,7 +293,16 @@ class TelemetryForegroundService : Service(), SensorEventListener {
             // SECCIÓN 1: SOPORTE & APPS EN RUTA
             command.startsWith("INSTALL_APK_OTA") -> {
                 Log.i(TAG, "Iniciando descarga e instalación silenciosa OTA: $command")
-                // Proceso de descarga e instalación OTA
+                val url = if (command.contains("http")) command.substringAfter("http").let { "http$it" } else ""
+                if (url.isNotEmpty()) {
+                    downloadAndInstallApkSilently(url)
+                }
+            }
+            command.startsWith("SHOW_MESSAGE:") -> {
+                val msg = command.removePrefix("SHOW_MESSAGE:").trim()
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    android.widget.Toast.makeText(applicationContext, "Mensaje de Central:\n$msg", android.widget.Toast.LENGTH_LONG).show()
+                }
             }
             command == "KILL_RESTART_SALES_APP" -> {
                 restartSalesApp()
@@ -478,6 +487,44 @@ class TelemetryForegroundService : Service(), SensorEventListener {
         if (dpm.isDeviceOwnerApp(packageName)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 dpm.reboot(admin)
+            }
+        }
+    }
+
+    private fun downloadAndInstallApkSilently(apkUrl: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = java.net.URL(apkUrl)
+                val connection = url.openConnection()
+                connection.connect()
+                val inputStream = connection.getInputStream()
+
+                val packageInstaller = packageManager.packageInstaller
+                val params = android.content.pm.PackageInstaller.SessionParams(android.content.pm.PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+                val sessionId = packageInstaller.createSession(params)
+                val session = packageInstaller.openSession(sessionId)
+
+                val out = session.openWrite("OTA_update", 0, -1)
+                val buffer = ByteArray(65536)
+                var c: Int
+                while (inputStream.read(buffer).also { c = it } != -1) {
+                    out.write(buffer, 0, c)
+                }
+                session.fsync(out)
+                out.close()
+                inputStream.close()
+
+                val intent = Intent("com.rutacontrol.ACTION_INSTALL_COMPLETE")
+                val pendingIntent = PendingIntent.getBroadcast(
+                    applicationContext,
+                    sessionId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                )
+                session.commit(pendingIntent.intentSender)
+                Log.i(TAG, "Instalación silenciosa OTA enviada a PackageInstaller")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error instalando APK silenciosamente: ${e.message}")
             }
         }
     }

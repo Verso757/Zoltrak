@@ -296,7 +296,7 @@ class MainActivity : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle(title)
-            .setMessage("Ingrese el PIN de Supervisor (7575 / 2026) para continuar:")
+            .setMessage("Ingrese el PIN de Supervisor para continuar:")
             .setView(input)
             .setPositiveButton("Verificar") { _, _ ->
                 val entered = input.text.toString().trim()
@@ -481,7 +481,7 @@ class MainActivity : AppCompatActivity() {
     private fun confirmDisableDeviceOwner() {
         val input = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
-            hint = "Escriba el PIN SuperAdmin (2026)"
+            hint = "Escriba el PIN SuperAdmin"
         }
 
         AlertDialog.Builder(this)
@@ -595,7 +595,7 @@ class MainActivity : AppCompatActivity() {
                     "com.whatsapp.w4b",
                     "com.android.settings",
                     "com.android.settings.intelligence"
-                )
+                ).distinct().toTypedArray()
                 dpm.setLockTaskPackages(adminComponent, allowedPackages)
 
                 // 3. Activar funciones de LockTask (Barra de estado mínima, notificaciones bloqueadas)
