@@ -145,37 +145,37 @@ try {
     <header class="h-14 bg-white subtle-border border-b flex items-center justify-between px-4 z-40 shrink-0">
         <!-- Logo & Platform Identity -->
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-950/50">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/30">
                 <i data-lucide="navigation" class="w-4 h-4 text-slate-900"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-tight text-slate-900 text-sm">RUTACONTROL</span>
-                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-mono font-semibold uppercase tracking-wider border border-emerald-500/20">MDM 1.0</span>
+                    <span class="px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 text-[10px] font-mono font-semibold uppercase tracking-wider border border-sky-500/20">MDM 1.0</span>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Tabs -->
-        <nav class="flex items-center gap-1 bg-slate-50/80 p-1 rounded-lg subtle-border">
-            <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-slate-200 text-slate-900 shadow-sm">
-                <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-600"></i>
+        <nav class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg subtle-border">
+            <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-sky-50 text-sky-700 font-bold shadow-sm">
+                <i data-lucide="map" class="w-3.5 h-3.5 text-sky-600"></i>
                 <span>Mapa en Vivo</span>
             </button>
-            <button onclick="switchTab('devices')" id="tab-btn-devices" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+            <button onclick="switchTab('devices')" id="tab-btn-devices" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700">
                 <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
                 <span>Dispositivos</span>
                 <span id="badge-total-devs" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px] font-mono text-slate-600 font-bold"><?= $totalDevices ?></span>
             </button>
-            <button onclick="switchTab('drivers')" id="tab-btn-drivers" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+            <button onclick="switchTab('drivers')" id="tab-btn-drivers" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700">
                 <i data-lucide="users" class="w-3.5 h-3.5"></i>
                 <span>Conductores</span>
             </button>
-            <button onclick="switchTab('apks')" id="tab-btn-apks" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+            <button onclick="switchTab('apks')" id="tab-btn-apks" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700">
                 <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
                 <span>Distribución OTA</span>
             </button>
-            <button onclick="switchTab('diagnostics')" id="tab-btn-diagnostics" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+            <button onclick="switchTab('diagnostics')" id="tab-btn-diagnostics" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700">
                 <i data-lucide="activity" class="w-3.5 h-3.5"></i>
                 <span>Salud del Servidor</span>
             </button>
@@ -185,8 +185,8 @@ try {
         <div class="flex items-center gap-3">
             <!-- Metric Pills -->
             <div class="hidden lg:flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-lg subtle-border font-mono text-xs">
-                <div class="flex items-center gap-1.5 text-emerald-600 font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div class="flex items-center gap-1.5 text-sky-600 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
                     <span id="metric-moving"><?= $movingNow ?></span> <span class="text-slate-600 font-sans font-normal text-[11px]">en ruta</span>
                 </div>
                 <span class="text-slate-700">|</span>
@@ -203,7 +203,7 @@ try {
 
             <!-- Auto-refresh Indicator -->
             <div class="flex items-center gap-2 text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md subtle-border">
-                <i data-lucide="refresh-cw" id="sync-icon" class="w-3 h-3 text-emerald-600 transition-transform"></i>
+                <i data-lucide="refresh-cw" id="sync-icon" class="w-3 h-3 text-sky-600 transition-transform"></i>
                 <span id="sync-timer" class="text-[11px]">1s</span>
             </div>
         </div>
@@ -225,7 +225,7 @@ try {
                 <div class="p-3 border-b border-slate-300/50 space-y-2">
                     <div class="relative">
                         <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-600"></i>
-                        <input type="text" id="fleet-search" placeholder="Buscar chofer, placa, ruta o UID..." class="w-full bg-slate-50 text-xs text-slate-900 pl-9 pr-3 py-2 rounded-lg subtle-border focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-500 font-mono">
+                        <input type="text" id="fleet-search" placeholder="Buscar chofer, placa, ruta o UID..." class="w-full bg-slate-50 text-xs text-slate-900 pl-9 pr-3 py-2 rounded-lg subtle-border focus:outline-none focus:border-sky-500 transition-colors placeholder:text-slate-500 font-mono">
                     </div>
                     
                     <!-- Filter Chips -->
@@ -240,7 +240,7 @@ try {
                 <!-- Devices / Units List -->
                 <div id="fleet-items-container" class="flex-1 overflow-y-auto divide-y divide-slate-200 p-1.5 space-y-1">
                     <div class="p-8 text-center text-slate-600 text-xs">
-                        <i data-lucide="loader" class="w-5 h-5 mx-auto animate-spin text-emerald-600 mb-2"></i>
+                        <i data-lucide="loader" class="w-5 h-5 mx-auto animate-spin text-sky-600 mb-2"></i>
                         Cargando telemetría de unidades...
                     </div>
                 </div>
@@ -248,7 +248,7 @@ try {
                 <!-- Footer Summary -->
                 <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-[11px] font-mono text-slate-600 flex justify-between items-center">
                     <span id="fleet-count-summary">0 unidades registradas</span>
-                    <button onclick="fitAllMarkers()" class="text-emerald-600 hover:underline flex items-center gap-1 font-sans">
+                    <button onclick="fitAllMarkers()" class="text-sky-600 hover:underline flex items-center gap-1 font-sans">
                         <i data-lucide="maximize" class="w-3 h-3"></i> Encuadrar mapa
                     </button>
                 </div>
@@ -272,7 +272,7 @@ try {
                 <div id="telemetry-hud" class="hidden absolute bottom-4 right-4 z-20 w-96 hud-glass rounded-xl shadow-2xl p-4 transition-all duration-300">
                     <div class="flex items-start justify-between border-b border-slate-300 pb-3 mb-3">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600">
+                            <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-600">
                                 <i data-lucide="truck" class="w-5 h-5"></i>
                             </div>
                             <div>
@@ -287,15 +287,15 @@ try {
 
                     <!-- Telemetry Meters Grid -->
                     <div class="grid grid-cols-3 gap-2 mb-3">
-                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                        <div class="bg-slate-100 p-2.5 rounded-lg border border-slate-200 text-center">
                             <span class="text-[10px] text-slate-600 uppercase font-semibold">Velocidad</span>
-                            <div class="text-lg font-bold font-mono text-emerald-600 mt-0.5" id="hud-speed">0 <span class="text-[10px] font-normal text-slate-600">km/h</span></div>
+                            <div class="text-lg font-bold font-mono text-sky-600 mt-0.5" id="hud-speed">0 <span class="text-[10px] font-normal text-slate-600">km/h</span></div>
                         </div>
-                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                        <div class="bg-slate-100 p-2.5 rounded-lg border border-slate-200 text-center">
                             <span class="text-[10px] text-slate-600 uppercase font-semibold">Batería</span>
                             <div class="text-lg font-bold font-mono text-cyan-600 mt-0.5" id="hud-battery">--%</div>
                         </div>
-                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                        <div class="bg-slate-100 p-2.5 rounded-lg border border-slate-200 text-center">
                             <span class="text-[10px] text-slate-600 uppercase font-semibold">Consumo Est.</span>
                             <div class="text-lg font-bold font-mono text-amber-400 mt-0.5" id="hud-fuel">0.0 <span class="text-[10px] font-normal text-slate-600">L/h</span></div>
                         </div>
@@ -309,7 +309,7 @@ try {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-600 font-sans">Último Ping GPS:</span>
-                            <span id="hud-last-ping" class="text-emerald-600">En vivo</span>
+                            <span id="hud-last-ping" class="text-sky-600">En vivo</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-600 font-sans">Fuerza G / Impacto:</span>
@@ -322,7 +322,7 @@ try {
                         <button onclick="requestScreenshotFromHud()" class="px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-300 transition-colors">
                             <i data-lucide="camera" class="w-3.5 h-3.5 text-cyan-600"></i> Captura Pantalla
                         </button>
-                        <button onclick="openMdmModalFromHud()" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
+                        <button onclick="openMdmModalFromHud()" class="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-sky-500/30">
                             <i data-lucide="shield" class="w-3.5 h-3.5"></i> Comandos MDM
                         </button>
                     </div>
@@ -343,10 +343,10 @@ try {
                         <p class="text-xs text-slate-600 mt-0.5">Control de terminales móviles, versiones de APK instaladas y enlace de conductores</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="selectedDeviceUid='ALL_DEVICES'; openMdmModalFromHud();" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-blue-950/50">
+                        <button onclick="selectedDeviceUid='ALL_DEVICES'; openMdmModalFromHud();" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-blue-950/50">
                             <i data-lucide="download" class="w-4 h-4"></i> Instalar APK a Todos
                         </button>
-                        <button onclick="openEnrollmentQrModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
+                        <button onclick="openEnrollmentQrModal()" class="px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-sky-500/30">
                             <i data-lucide="qr-code" class="w-4 h-4"></i> Código QR de Aprovisionamiento
                         </button>
                     </div>
@@ -391,7 +391,7 @@ try {
                         <h2 class="text-xl font-bold text-slate-900">Directorio de Conductores y Flota</h2>
                         <p class="text-xs text-slate-600 mt-0.5">Asignación de unidades, placas vehiculares y códigos de ruta comercial</p>
                     </div>
-                    <button onclick="openNewDriverModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                    <button onclick="openNewDriverModal()" class="px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
                         <i data-lucide="user-plus" class="w-4 h-4"></i> Registrar Conductor
                     </button>
                 </div>
@@ -421,7 +421,7 @@ try {
                 <!-- Upload Card -->
                 <div class="bg-white rounded-xl subtle-border p-6 space-y-4">
                     <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-600"></i> Subir Nueva Versión de la Aplicación
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-sky-600"></i> Subir Nueva Versión de la Aplicación
                     </h3>
                     
                     <form id="apk-upload-form" enctype="multipart/form-data" class="space-y-4">
@@ -438,10 +438,10 @@ try {
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Archivo APK Compilado (.apk)</label>
-                            <input type="file" name="apk_file" accept=".apk" required class="w-full bg-slate-50 text-xs text-slate-600 px-3 py-2 rounded-lg subtle-border file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-slate-900 hover:file:bg-emerald-500">
+                            <input type="file" name="apk_file" accept=".apk" required class="w-full bg-slate-50 text-xs text-slate-600 px-3 py-2 rounded-lg subtle-border file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
                         </div>
 
-                        <button type="submit" id="btn-submit-apk" class="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-2 transition-colors">
+                        <button type="submit" id="btn-submit-apk" class="px-4 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-2 transition-colors">
                             <i data-lucide="upload" class="w-4 h-4"></i> Publicar y Distribuir Actualización
                         </button>
                     </form>
@@ -497,24 +497,24 @@ try {
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-xl subtle-border">
                         <span class="text-xs text-slate-600">Base de Datos MySQL</span>
-                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-db-status">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Conectada
+                        <div class="text-lg font-bold text-sky-600 mt-1 flex items-center gap-2" id="diag-db-status">
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Conectada
                         </div>
                         <p class="text-[11px] text-slate-500 font-mono mt-1">Hostinger Database Active</p>
                     </div>
 
                     <div class="bg-white p-4 rounded-xl subtle-border">
                         <span class="text-xs text-slate-600">Endpoint Telemetría (1Hz)</span>
-                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-api-status">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 200 OK
+                        <div class="text-lg font-bold text-sky-600 mt-1 flex items-center gap-2" id="diag-api-status">
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> 200 OK
                         </div>
                         <p class="text-[11px] text-slate-500 font-mono mt-1">/api/telemetry.php</p>
                     </div>
 
                     <div class="bg-white p-4 rounded-xl subtle-border">
                         <span class="text-xs text-slate-600">Canal de Comandos MDM</span>
-                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-mdm-status">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Activo
+                        <div class="text-lg font-bold text-sky-600 mt-1 flex items-center gap-2" id="diag-mdm-status">
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Activo
                         </div>
                         <p class="text-[11px] text-slate-500 font-mono mt-1">/api/devices.php</p>
                     </div>
@@ -526,7 +526,7 @@ try {
                         <h3 class="text-xs font-bold text-slate-900 uppercase font-mono">Últimos Paquetes GPS Recibidos en Vivo</h3>
                         <span class="text-[10px] text-slate-600 font-mono">Buffer de los últimos 20 pings</span>
                     </div>
-                    <pre id="raw-telemetry-log" class="p-4 bg-slate-50 rounded-lg text-emerald-600 text-xs font-mono overflow-x-auto max-h-96 border border-slate-200">Esperando transmisiones...</pre>
+                    <pre id="raw-telemetry-log" class="p-4 bg-slate-50 rounded-lg text-sky-600 text-xs font-mono overflow-x-auto max-h-96 border border-slate-200">Esperando transmisiones...</pre>
                 </div>
             </div>
         </div>
@@ -540,7 +540,7 @@ try {
         <div class="bg-white rounded-xl subtle-border w-full max-w-lg shadow-2xl p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2">
-                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
+                    <div class="p-2 rounded-lg bg-sky-500/10 text-sky-600">
                         <i data-lucide="shield" class="w-5 h-5"></i>
                     </div>
                     <div>
@@ -561,7 +561,7 @@ try {
                         <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-600"></i> Enviar Mensaje Prioritario al Chofer
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="mdm-input-msg" placeholder="Ej. Reportarse a base de inmediato..." class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="mdm-input-msg" placeholder="Ej. Reportarse a base de inmediato..." class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-sky-500">
                         <button onclick="sendMdmCommand('message')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-xs text-slate-900 font-semibold rounded-md border border-slate-300">Enviar</button>
                     </div>
                 </div>
@@ -581,11 +581,11 @@ try {
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <div>
                         <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
-                            <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-600"></i> Captura de Pantalla en Vivo
+                            <i data-lucide="camera" class="w-3.5 h-3.5 text-sky-600"></i> Captura de Pantalla en Vivo
                         </div>
                         <p class="text-[11px] text-slate-600">Toma una foto de lo que el chofer está viendo ahora</p>
                     </div>
-                    <button onclick="sendMdmCommand('screenshot')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold rounded-md">Solicitar</button>
+                    <button onclick="sendMdmCommand('screenshot')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-md">Solicitar</button>
                 </div>
 
                 <!-- 4. Fijar Paquete de App de Ventas -->
@@ -607,7 +607,7 @@ try {
                     <p class="text-[11px] text-slate-600">Pega el link directo (.apk) para forzar la instalación de cualquier app</p>
                     <div class="flex gap-2">
                         <input type="text" id="mdm-input-apk" placeholder="https://ejemplo.com/app.apk" class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-blue-500">
-                        <button onclick="sendMdmCommand('force_ota')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md border border-blue-600">Instalar</button>
+                        <button onclick="sendMdmCommand('force_ota')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-slate-800 text-xs font-semibold rounded-md border border-blue-600">Instalar</button>
                     </div>
                 </div>
             </div>
@@ -626,7 +626,7 @@ try {
         <div class="bg-white rounded-xl subtle-border w-full max-w-md shadow-2xl p-5 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2">
-                    <i data-lucide="user-plus" class="w-4 h-4 text-emerald-600"></i>
+                    <i data-lucide="user-plus" class="w-4 h-4 text-sky-600"></i>
                     <h3 class="text-sm font-bold text-slate-900">Registrar Conductor</h3>
                 </div>
                 <button onclick="document.getElementById('modal-driver').classList.add('hidden')" class="text-slate-600 hover:text-slate-900">
@@ -636,18 +636,18 @@ try {
             <form id="form-driver" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre Completo</label>
-                    <input type="text" id="driver-name" required class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="driver-name" required class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-sky-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
-                    <input type="text" id="driver-phone" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="driver-phone" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-sky-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Placas de Vehículo</label>
-                    <input type="text" id="driver-plate" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="driver-plate" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-sky-500">
                 </div>
                 <div class="pt-2">
-                    <button type="submit" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-bold rounded-lg transition-colors">Guardar Conductor</button>
+                    <button type="submit" class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition-colors">Guardar Conductor</button>
                 </div>
             </form>
         </div>
@@ -659,7 +659,7 @@ try {
         <div class="bg-white rounded-xl subtle-border w-full max-w-2xl shadow-2xl p-4 space-y-3">
             <div class="flex items-center justify-between border-b border-slate-200 pb-2">
                 <div class="flex items-center gap-2">
-                    <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+                    <i data-lucide="camera" class="w-4 h-4 text-sky-600"></i>
                     <h3 class="text-sm font-bold text-slate-900" id="screenshot-title">Captura de Pantalla Bajo Demanda</h3>
                 </div>
                 <button onclick="closeScreenshotModal()" class="text-slate-600 hover:text-slate-900 p-1">
@@ -673,7 +673,7 @@ try {
 
             <div class="flex items-center justify-between text-xs text-slate-600 font-mono">
                 <span id="screenshot-timestamp">Tomada: ---</span>
-                <button onclick="refreshScreenshot()" class="text-emerald-600 hover:underline flex items-center gap-1 font-sans">
+                <button onclick="refreshScreenshot()" class="text-sky-600 hover:underline flex items-center gap-1 font-sans">
                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar captura
                 </button>
             </div>
@@ -700,7 +700,7 @@ try {
                 <div id="qrcode-container"></div>
             </div>
 
-            <p class="text-[11px] font-mono text-emerald-600 break-all">
+            <p class="text-[11px] font-mono text-sky-600 break-all">
                 https://zoltrak.websolutionsgarcia.com/api/apks.php?action=download_active
             </p>
         </div>
@@ -892,18 +892,18 @@ try {
                 const isOnline = isDeviceOnline(dev.last_ping_at);
                 const speed = parseFloat(dev.current_speed_kmh || dev.last_speed_kmh || 0);
                 const isMoving = speed > 3;
-                const statusDot = isOnline ? (isMoving ? 'bg-emerald-500' : 'bg-amber-500') : 'bg-slate-600';
+                const statusDot = isOnline ? (isMoving ? 'bg-sky-500' : 'bg-amber-500') : 'bg-slate-600';
                 const statusText = isOnline ? (isMoving ? `${Math.round(speed)} km/h` : 'Detenido') : 'Offline';
                 const isSelected = selectedDeviceUid === dev.device_uid;
 
                 return `
-                    <div onclick="selectDevice('${dev.device_uid}')" class="p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-emerald-500/10 border border-emerald-500/30' : 'hover:bg-slate-100 bg-white/60 subtle-border'}">
+                    <div onclick="selectDevice('${dev.device_uid}')" class="p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-sky-500/10 border border-sky-500/30' : 'hover:bg-slate-100 bg-white/60 subtle-border'}">
                         <div class="flex items-start justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full ${statusDot}"></span>
                                 <span class="font-bold text-slate-900 text-xs">${dev.driver_name || 'Sin Asignar'}</span>
                             </div>
-                            <span class="text-[11px] font-mono font-bold ${isOnline && isMoving ? 'text-emerald-600' : 'text-slate-600'}">${statusText}</span>
+                            <span class="text-[11px] font-mono font-bold ${isOnline && isMoving ? 'text-sky-600' : 'text-slate-600'}">${statusText}</span>
                         </div>
                         <div class="flex items-center justify-between text-[11px] text-slate-600 font-mono mt-1.5">
                             <span>${dev.vehicle_plate ? `PLACA: ${dev.vehicle_plate}` : `UID: ${dev.device_uid.substring(0, 10)}...`}</span>
@@ -1013,7 +1013,7 @@ try {
                 const resJson = await res.json();
 
                 if (resJson.status === 'ok') {
-                    feedback.className = 'p-3 rounded-lg text-xs font-mono bg-emerald-50 text-emerald-600 border border-emerald-500/30';
+                    feedback.className = 'p-3 rounded-lg text-xs font-mono bg-emerald-50 text-sky-600 border border-sky-500/30';
                     feedback.innerText = `✅ ${resJson.message || 'Comando encolado exitosamente.'}`;
                     
                     if (type === 'screenshot') {
@@ -1096,16 +1096,16 @@ try {
         function switchTab(tabId) {
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('bg-slate-200', 'text-slate-900', 'shadow-sm');
-                b.classList.add('text-slate-600');
+                b.classList.remove('bg-sky-50', 'text-sky-700', 'font-bold', 'shadow-sm');
+                b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
             });
 
             const targetView = document.getElementById(`view-${tabId}`);
             const targetBtn = document.getElementById(`tab-btn-${tabId}`);
             if (targetView && targetBtn) {
                 targetView.classList.remove('hidden');
-                targetBtn.classList.add('bg-slate-200', 'text-slate-900', 'shadow-sm');
-                targetBtn.classList.remove('text-slate-600');
+                targetBtn.classList.add('bg-sky-50', 'text-sky-700', 'font-bold', 'shadow-sm');
+                targetBtn.classList.remove('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
             }
 
             if (tabId === 'map' && map) {
@@ -1127,8 +1127,8 @@ try {
             tbody.innerHTML = devicesData.map(dev => {
                 const isOnline = isDeviceOnline(dev.last_ping_at);
                 const statusBadge = isOnline 
-                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-bold border border-emerald-500/20">EN LÍNEA</span>'
-                    : '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-600 text-[10px] font-bold border border-slate-700">OFFLINE</span>';
+                    ? '<span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-600 text-[10px] font-bold border border-sky-500/20">EN LÍNEA</span>'
+                    : '<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-300">OFFLINE</span>';
 
                 return `
                     <tr class="hover:bg-slate-100/50 transition-colors">
@@ -1136,7 +1136,7 @@ try {
                         <td class="px-4 py-3 text-slate-900 font-bold">${dev.device_uid}</td>
                         <td class="px-4 py-3 font-sans text-slate-700">${dev.driver_name || 'Sin Asignar'}</td>
                         <td class="px-4 py-3">${dev.vehicle_plate || '---'}</td>
-                        <td class="px-4 py-3 text-emerald-600">${dev.apk_version || '1.0.0'}</td>
+                        <td class="px-4 py-3 text-sky-600">${dev.apk_version || '1.0.0'}</td>
                         <td class="px-4 py-3 text-slate-600">${formatTimeAgo(dev.last_ping_at)}</td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex gap-1 justify-end">
@@ -1210,7 +1210,7 @@ try {
         }
         
         async function assignDriver(deviceUid) {
-            const driverId = await Swal.fire({title: "Asignar Conductor", input: "number", inputLabel: "ID Numérico del conductor", showCancelButton: true, confirmButtonColor: "#10b981"}).then(r => r.value);
+            const driverId = await Swal.fire({title: "Asignar Conductor", input: "number", inputLabel: "ID Numérico del conductor", showCancelButton: true, confirmButtonColor: "#0ea5e9"}).then(r => r.value);
             if (driverId) {
                 await fetch('/api/drivers.php', { method: 'POST', body: JSON.stringify({ action: 'assign_device', driver_id: driverId, device_uid: deviceUid }) });
                 Swal.fire("¡Éxito!", "Conductor asignado correctamente", "success");
@@ -1234,12 +1234,12 @@ try {
                             <td class="px-4 py-3 text-slate-600">${apk.created_at}</td>
                             <td class="px-4 py-3">
                                 ${apk.is_active == 1 
-                                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-bold">ACTIVA (PRODUCCIÓN)</span>'
+                                    ? '<span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-600 text-[10px] font-bold">ACTIVA (PRODUCCIÓN)</span>'
                                     : '<span class="text-slate-500 text-[10px]">Archivada</span>'
                                 }
                             </td>
                             <td class="px-4 py-3 text-right">
-                                <a href="/uploads/apks/${apk.file_name}" download class="text-emerald-600 hover:underline">Descargar .apk</a>
+                                <a href="/uploads/apks/${apk.file_name}" download class="text-sky-600 hover:underline">Descargar .apk</a>
                             </td>
                         </tr>
                     `).join('');
@@ -1311,7 +1311,7 @@ try {
             activeFilter = filter;
             document.querySelectorAll('.filter-chip').forEach(b => {
                 b.classList.remove('bg-slate-200', 'text-slate-900');
-                b.classList.add('text-slate-600');
+                b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
             });
             const activeBtn = document.getElementById(`filter-${filter}`);
             if (activeBtn) {
