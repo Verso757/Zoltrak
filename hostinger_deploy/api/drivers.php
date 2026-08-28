@@ -45,8 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     $id = $_GET['id'] ?? 0;
     if ($id) {
-        $pdo->prepare("UPDATE devices SET assigned_driver_id = NULL WHERE assigned_driver_id = ?")->execute([$id]);
-        $pdo->prepare("DELETE FROM drivers WHERE id = ?")->execute([$id]);
+        try { $pdo->prepare("UPDATE devices SET assigned_driver_id = NULL WHERE assigned_driver_id = ?")->execute([$id]); } catch (Exception $e) {}
+        try { $pdo->prepare("DELETE FROM telemetry_points WHERE driver_id = ?")->execute([$id]); } catch (Exception $e) {}
+        try { $pdo->prepare("DELETE FROM telemetry_logs WHERE driver_id = ?")->execute([$id]); } catch (Exception $e) {}
+        try { $pdo->prepare("DELETE FROM drivers WHERE id = ?")->execute([$id]); } catch (Exception $e) {}
     }
     echo json_encode(["status" => "ok"]);
     exit;

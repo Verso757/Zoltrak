@@ -196,9 +196,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $dev = $stmt->fetch();
         if ($dev) {
             $devId = $dev['id'];
-            $pdo->prepare("DELETE FROM telemetry_points WHERE device_id = ?")->execute([$devId]);
-            $pdo->prepare("DELETE FROM telemetry_logs WHERE device_id = ?")->execute([$devId]);
-            $pdo->prepare("DELETE FROM devices WHERE id = ?")->execute([$devId]);
+            try { $pdo->prepare("DELETE FROM telemetry_points WHERE device_id = ?")->execute([$devId]); } catch (Exception $e) {}
+            try { $pdo->prepare("DELETE FROM telemetry_logs WHERE device_id = ?")->execute([$devId]); } catch (Exception $e) {}
+            try { $pdo->prepare("DELETE FROM devices WHERE id = ?")->execute([$devId]); } catch (Exception $e) {}
         }
         echo json_encode(["status" => "ok", "message" => "Dispositivo borrado"]);
     } else {
