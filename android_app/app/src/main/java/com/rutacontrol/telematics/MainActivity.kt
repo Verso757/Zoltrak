@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         // 3. Abrir Timemark / Evidencias
         btnOpenTimemark.setOnClickListener {
             launchAppByPackages(
-                listOf("com.oceangalaxy.camera.new", "com.timemark.camera", "com.timestampcamera.auto"),
+                listOf("com.oceangalaxy.camera.new", "com.timemark.camera", "com.timestampcamera.auto", "com.jeyluta.timestampcamerafree", "com.jeyluta.timestampcamera", "com.timestampcamera.autodatetimestamp", "camera.timestamp.mark.watermark"),
                 "Timemark"
             )
         }
@@ -591,6 +591,11 @@ class MainActivity : AppCompatActivity() {
                     "com.lechelaimperial.com.ventas",
                     "com.oceangalaxy.camera.new",
                     "com.timemark.camera",
+                    "com.timestampcamera.auto",
+                    "com.jeyluta.timestampcamerafree",
+                    "com.jeyluta.timestampcamera",
+                    "com.timestampcamera.autodatetimestamp",
+                    "camera.timestamp.mark.watermark",
                     "com.whatsapp",
                     "com.whatsapp.w4b",
                     "com.android.settings",

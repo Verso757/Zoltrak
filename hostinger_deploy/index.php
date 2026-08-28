@@ -41,455 +41,675 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RutaControl MDM • Monitoreo Ejecutivo</title>
+    <title>RutaControl MDM • Monitoreo Ejecutivo de Flota</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace']
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        dark: {
+                            950: '#070a10',
+                            900: '#0b0f19',
+                            850: '#101623',
+                            800: '#161f30',
+                            700: '#222f46',
+                            600: '#33435e',
+                        }
                     }
                 }
             }
         }
     </script>
-    
-    <!-- Leaflet JS & CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Phosphor Icons (Ligeros y corporativos) -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* Light map theme styling */
-        .leaflet-container { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-leaflet-marker { background: transparent; border: none; }
-        .marker-glow { filter: drop-shadow(0 0 6px rgba(14, 165, 233, 0.5)); }
-        .marker-glow-offline { filter: drop-shadow(0 0 4px rgba(148, 163, 184, 0.6)); }
-        .marker-glow-speed { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); }
-        
-        /* Ocultar barra de scroll pero mantener funcionalidad */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body {
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222f46;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #33435e;
+        }
+        /* Map custom styling */
+        .leaflet-container {
+            background: #070a10 !important;
+            font-family: inherit;
+        }
+        .custom-vehicle-marker {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pulse-ring {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-ring-anim 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+        }
+        @keyframes pulse-ring-anim {
+            to {
+                box-shadow: 0 0 0 16px rgba(16, 185, 129, 0);
+            }
+        }
+        .hud-glass {
+            background: rgba(16, 22, 35, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .subtle-border {
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="h-full flex overflow-hidden selection:bg-sky-500 selection:text-white">
+<body class="h-full flex flex-col overflow-hidden bg-white">
 
-    <!-- BARRA LATERAL (SIDEBAR) -->
-    <nav class="w-20 md:w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 transition-all duration-300">
-        <div>
-            <!-- Logo -->
-            <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-slate-100 mb-6">
-                <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-600/20">
-                    <i class="ph-bold ph-radar text-white text-xl"></i>
-                </div>
-                <span class="ml-3 font-bold text-lg hidden md:block tracking-tight text-slate-900">RutaControl</span>
+    <!-- ============================================================ -->
+    <!-- TOP NAVIGATION BAR (Minimalist, Dense, High-Contrast) -->
+    <!-- ============================================================ -->
+    <header class="h-14 bg-white subtle-border border-b flex items-center justify-between px-4 z-40 shrink-0">
+        <!-- Logo & Platform Identity -->
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-950/50">
+                <i data-lucide="navigation" class="w-4 h-4 text-slate-900"></i>
             </div>
-
-            <!-- Menú de Navegación -->
-            <div class="px-3 flex flex-col gap-2">
-                <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn w-full flex items-center p-3 md:px-4 md:py-3 rounded-xl bg-sky-50 text-sky-700 font-semibold transition-all group">
-                    <i class="ph-fill ph-map-trifold text-2xl md:text-xl transition-transform group-hover:scale-110"></i>
-                    <span class="ml-3 text-sm hidden md:block">Mapa en Vivo</span>
-                </button>
-                <button onclick="switchTab('devices')" id="tab-btn-devices" class="tab-btn w-full flex items-center p-3 md:px-4 md:py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all group">
-                    <i class="ph-fill ph-device-mobile text-2xl md:text-xl transition-transform group-hover:scale-110"></i>
-                    <span class="ml-3 text-sm hidden md:block font-medium">Dispositivos</span>
-                </button>
-                <button onclick="switchTab('drivers')" id="tab-btn-drivers" class="tab-btn w-full flex items-center p-3 md:px-4 md:py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all group">
-                    <i class="ph-fill ph-users text-2xl md:text-xl transition-transform group-hover:scale-110"></i>
-                    <span class="ml-3 text-sm hidden md:block font-medium">Conductores</span>
-                </button>
-                <button onclick="switchTab('apks')" id="tab-btn-apks" class="tab-btn w-full flex items-center p-3 md:px-4 md:py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all group">
-                    <i class="ph-fill ph-cloud-arrow-up text-2xl md:text-xl transition-transform group-hover:scale-110"></i>
-                    <span class="ml-3 text-sm hidden md:block font-medium">OTA Updates</span>
-                </button>
-                <button onclick="switchTab('diagnostics')" id="tab-btn-diagnostics" class="tab-btn w-full flex items-center p-3 md:px-4 md:py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all group">
-                    <i class="ph-fill ph-activity text-2xl md:text-xl transition-transform group-hover:scale-110"></i>
-                    <span class="ml-3 text-sm hidden md:block font-medium">Diagnóstico</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="p-4 mb-2 hidden md:block">
-            <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-                        <i class="ph-fill ph-user text-slate-500"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-800">Admin</p>
-                        <p class="text-xs text-slate-500">RutaControl</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- ÁREA PRINCIPAL -->
-    <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
-        
-        <!-- HEADER MÓVIL (Solo visible en pantallas pequeñas) -->
-        <header class="md:hidden h-16 border-b border-slate-200 bg-white flex items-center px-4 shrink-0 justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-600/20">
-                    <i class="ph-bold ph-radar text-white text-sm"></i>
-                </div>
-                <span class="font-bold text-slate-900">RutaControl</span>
-            </div>
-            <button onclick="openEnrollmentQrModal()" class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-600">
-                <i class="ph-bold ph-qr-code"></i>
-            </button>
-        </header>
-
-        <!-- DASHBOARD HEADER -->
-        <div id="top-metrics-bar" class="p-6 border-b border-slate-200 bg-white shrink-0 hidden md:flex items-center justify-between z-10 relative">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">Centro de Monitoreo</h1>
-                <p class="text-sm text-slate-500">Control maestro de telemetría y MDM</p>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div class="flex gap-2">
-                    <div class="bg-white border border-slate-200 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                            <i class="ph-fill ph-device-mobile text-slate-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-slate-500 font-medium">Flota Total</p>
-                            <p class="text-lg font-bold text-slate-900 leading-tight"><span id="metric-total"><?php echo $totalDevices; ?></span></p>
-                        </div>
-                    </div>
-                    <div class="bg-white border border-slate-200 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
-                        <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
-                            <i class="ph-fill ph-wifi-high text-emerald-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-slate-500 font-medium">En Línea</p>
-                            <p class="text-lg font-bold text-emerald-600 leading-tight"><span id="metric-active"><?php echo $activeNow; ?></span></p>
-                        </div>
-                    </div>
-                    <div class="bg-white border border-slate-200 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
-                        <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
-                            <i class="ph-fill ph-warning-circle text-red-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-slate-500 font-medium">Offline</p>
-                            <p class="text-lg font-bold text-red-500 leading-tight"><span id="metric-offline"><?php echo $offlineNow; ?></span></p>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold tracking-tight text-slate-900 text-sm">RUTACONTROL</span>
+                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-mono font-semibold uppercase tracking-wider border border-emerald-500/20">MDM 1.0</span>
                 </div>
-                
-                <button onclick="openEnrollmentQrModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-slate-900/10 transition-all flex items-center gap-2">
-                    <i class="ph-bold ph-qr-code text-lg"></i> Enrolar Dispositivo
-                </button>
             </div>
         </div>
 
-        <!-- CONTENEDOR DE VISTAS (TABS) -->
-        <div class="flex-1 relative overflow-hidden bg-slate-50">
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center gap-1 bg-slate-50/80 p-1 rounded-lg subtle-border">
+            <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-slate-200 text-slate-900 shadow-sm">
+                <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Mapa en Vivo</span>
+            </button>
+            <button onclick="switchTab('devices')" id="tab-btn-devices" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+                <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+                <span>Dispositivos</span>
+                <span id="badge-total-devs" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px] font-mono text-slate-600 font-bold"><?= $totalDevices ?></span>
+            </button>
+            <button onclick="switchTab('drivers')" id="tab-btn-drivers" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                <span>Conductores</span>
+            </button>
+            <button onclick="switchTab('apks')" id="tab-btn-apks" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+                <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+                <span>Distribución OTA</span>
+            </button>
+            <button onclick="switchTab('diagnostics')" id="tab-btn-diagnostics" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
+                <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+                <span>Salud del Servidor</span>
+            </button>
+        </nav>
+
+        <!-- Right Side: Live Fleet Metrics Pill & System Clock -->
+        <div class="flex items-center gap-3">
+            <!-- Metric Pills -->
+            <div class="hidden lg:flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-lg subtle-border font-mono text-xs">
+                <div class="flex items-center gap-1.5 text-emerald-600 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="metric-moving"><?= $movingNow ?></span> <span class="text-slate-600 font-sans font-normal text-[11px]">en ruta</span>
+                </div>
+                <span class="text-slate-700">|</span>
+                <div class="flex items-center gap-1.5 text-amber-400 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span id="metric-active"><?= $activeNow ?></span> <span class="text-slate-600 font-sans font-normal text-[11px]">en línea</span>
+                </div>
+                <span class="text-slate-700">|</span>
+                <div class="flex items-center gap-1.5 text-slate-600 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                    <span id="metric-offline"><?= $offlineNow ?></span> <span class="text-slate-500 font-sans font-normal text-[11px]">inactivos</span>
+                </div>
+            </div>
+
+            <!-- Auto-refresh Indicator -->
+            <div class="flex items-center gap-2 text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md subtle-border">
+                <i data-lucide="refresh-cw" id="sync-icon" class="w-3 h-3 text-emerald-600 transition-transform"></i>
+                <span id="sync-timer" class="text-[11px]">1s</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- MAIN APPLICATION CONTAINER -->
+    <!-- ============================================================ -->
+    <main class="flex-1 relative flex overflow-hidden">
+
+        <!-- ============================================================ -->
+        <!-- VIEW 1: LIVE MAP & TELEMETRY DASHBOARD -->
+        <!-- ============================================================ -->
+        <div id="view-map" class="app-view w-full h-full flex relative">
             
-            <!-- VISTA: MAPA EN VIVO -->
-            <div id="view-map" class="app-view absolute inset-0 flex flex-col md:flex-row">
-                <!-- Panel lateral de flota en mapa -->
-                <div class="w-full md:w-80 h-1/3 md:h-full bg-white border-r border-slate-200 flex flex-col shrink-0 z-[400] relative md:shadow-lg">
-                    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-                        <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                            <i class="ph-fill ph-list-dashes text-sky-600"></i> Unidades Activas
-                        </h2>
-                        <button onclick="fitAllMarkers()" class="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition" title="Centrar mapa">
-                            <i class="ph-bold ph-corners-out"></i>
-                        </button>
-                    </div>
-                    <div class="p-3 border-b border-slate-100 flex gap-2 overflow-x-auto hide-scrollbar">
-                        <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1 bg-sky-50 text-sky-700 border border-sky-100 rounded-full text-xs font-bold whitespace-nowrap">Todos</button>
-                        <button onclick="setFilter('active')" id="filter-active" class="px-3 py-1 bg-slate-50 text-slate-500 border border-slate-200 rounded-full text-xs font-medium whitespace-nowrap">Conectados</button>
-                        <button onclick="setFilter('moving')" id="filter-moving" class="px-3 py-1 bg-slate-50 text-slate-500 border border-slate-200 rounded-full text-xs font-medium whitespace-nowrap">En Movimiento</button>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-2" id="fleet-list">
-                        <!-- Lista inyectada por JS -->
-                    </div>
-                </div>
-                
-                <!-- El Mapa Leaflet -->
-                <div class="flex-1 relative h-2/3 md:h-full z-0">
-                    <div id="map" class="absolute inset-0"></div>
-                </div>
-
-                <!-- HUD Lateral de Dispositivo Seleccionado -->
-                <div id="device-hud" class="absolute top-4 right-4 w-80 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-2xl z-[500] hidden flex-col overflow-hidden transform transition-all translate-x-full">
-                    <div class="bg-slate-50 p-4 flex justify-between items-start border-b border-slate-100">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span id="hud-status" class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
-                                <h3 id="hud-driver-name" class="font-bold text-slate-900 text-lg leading-tight">Cargando...</h3>
-                            </div>
-                            <p id="hud-uid" class="text-xs text-slate-500 font-mono"></p>
-                        </div>
-                        <button onclick="closeHud()" class="w-8 h-8 bg-slate-200 hover:bg-slate-300 rounded-full flex items-center justify-center text-slate-600 transition">
-                            <i class="ph-bold ph-x"></i>
-                        </button>
+            <!-- Left Collapsible Sidebar: Fleet List & Search -->
+            <aside id="fleet-sidebar" class="w-80 lg:w-96 bg-white/95 subtle-border border-r z-20 flex flex-col shrink-0 transition-all duration-300">
+                <!-- Search & Filters -->
+                <div class="p-3 border-b border-slate-300/50 space-y-2">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-600"></i>
+                        <input type="text" id="fleet-search" placeholder="Buscar chofer, placa, ruta o UID..." class="w-full bg-slate-50 text-xs text-slate-900 pl-9 pr-3 py-2 rounded-lg subtle-border focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-500 font-mono">
                     </div>
                     
-                    <div class="p-4 flex flex-col gap-4">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">Velocidad</p>
-                                <p class="text-xl font-black text-slate-900 font-mono"><span id="hud-speed">0</span><span class="text-xs text-slate-500 font-sans font-medium ml-1">km/h</span></p>
-                            </div>
-                            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">Batería</p>
-                                <div class="flex items-end gap-1">
-                                    <p class="text-xl font-black text-emerald-600 font-mono"><span id="hud-battery">--</span>%</p>
-                                    <i id="hud-charging" class="ph-fill ph-lightning text-emerald-500 text-lg hidden"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2">
-                            <div class="flex items-center gap-2 text-slate-600 text-sm">
-                                <i class="ph-fill ph-car-profile text-slate-400"></i>
-                                <span id="hud-plate" class="font-medium">---</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-slate-600 text-sm">
-                                <i class="ph-fill ph-map-pin text-slate-400"></i>
-                                <span id="hud-coords" class="font-mono text-xs">---, ---</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-slate-500 text-sm">
-                                <i class="ph-fill ph-clock text-slate-400"></i>
-                                <span id="hud-lastping" class="text-xs">Hace unos instantes</span>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-2 mt-2">
-                            <button onclick="requestScreenshotFromHud()" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-lg py-2.5 text-xs font-bold flex items-center justify-center gap-2 transition">
-                                <i class="ph-bold ph-camera"></i> Pantalla
-                            </button>
-                            <button onclick="openMdmModalFromHud()" class="bg-sky-600 hover:bg-sky-500 text-white rounded-lg py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-sky-600/20 transition">
-                                <i class="ph-bold ph-terminal-window"></i> Consola MDM
-                            </button>
-                        </div>
+                    <!-- Filter Chips -->
+                    <div class="flex items-center gap-1 text-[11px] font-medium">
+                        <button onclick="setFilter('all')" id="filter-all" class="filter-chip px-2.5 py-1 rounded bg-slate-200 text-slate-900 subtle-border">Todos</button>
+                        <button onclick="setFilter('moving')" id="filter-moving" class="filter-chip px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 subtle-border">En Ruta</button>
+                        <button onclick="setFilter('stopped')" id="filter-stopped" class="filter-chip px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 subtle-border">Detenidos</button>
+                        <button onclick="setFilter('offline')" id="filter-offline" class="filter-chip px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 subtle-border">Sin Señal</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- VISTA: DISPOSITIVOS -->
-            <div id="view-devices" class="app-view absolute inset-0 hidden overflow-y-auto p-4 md:p-8 bg-slate-50">
-                <div class="max-w-7xl mx-auto">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-900">Inventario de Dispositivos</h2>
-                            <p class="text-slate-500 text-sm">Equipos enrolados mediante Android Enterprise</p>
+                <!-- Devices / Units List -->
+                <div id="fleet-items-container" class="flex-1 overflow-y-auto divide-y divide-slate-200 p-1.5 space-y-1">
+                    <div class="p-8 text-center text-slate-600 text-xs">
+                        <i data-lucide="loader" class="w-5 h-5 mx-auto animate-spin text-emerald-600 mb-2"></i>
+                        Cargando telemetría de unidades...
+                    </div>
+                </div>
+
+                <!-- Footer Summary -->
+                <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-[11px] font-mono text-slate-600 flex justify-between items-center">
+                    <span id="fleet-count-summary">0 unidades registradas</span>
+                    <button onclick="fitAllMarkers()" class="text-emerald-600 hover:underline flex items-center gap-1 font-sans">
+                        <i data-lucide="maximize" class="w-3 h-3"></i> Encuadrar mapa
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Map Center Canvas -->
+            <div class="flex-1 relative h-full">
+                <div id="map" class="w-full h-full"></div>
+
+                <!-- Map Quick Controls Overlay (Top Right) -->
+                <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                    <button onclick="toggleMapLayer()" title="Alternar Mapa Satélite / Oscuro" class="hud-glass p-2.5 rounded-lg text-slate-700 hover:text-slate-900 transition-colors shadow-xl">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="fitAllMarkers()" title="Enfocar toda la flota" class="hud-glass p-2.5 rounded-lg text-slate-700 hover:text-slate-900 transition-colors shadow-xl">
+                        <i data-lucide="crosshair" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Floating Telemetry HUD / Driver Inspector (Bottom Right) -->
+                <div id="telemetry-hud" class="hidden absolute bottom-4 right-4 z-20 w-96 hud-glass rounded-xl shadow-2xl p-4 transition-all duration-300">
+                    <div class="flex items-start justify-between border-b border-slate-300 pb-3 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600">
+                                <i data-lucide="truck" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 id="hud-driver-name" class="font-bold text-slate-900 text-sm leading-none">Unidad Sin Asignar</h3>
+                                <p id="hud-vehicle-plate" class="text-xs text-slate-600 font-mono mt-1">PLACA: --- • RUTA: ---</p>
+                            </div>
                         </div>
-                        <button onclick="fetchTelemetry()" class="bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 shadow-sm flex items-center gap-2 transition">
-                            <i class="ph-bold ph-arrows-clockwise"></i> Refrescar
+                        <button onclick="closeHud()" class="text-slate-600 hover:text-slate-900 p-1 rounded-md hover:bg-white/5">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
 
-                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
-                                    <tr>
-                                        <th class="px-6 py-4">Estado</th>
-                                        <th class="px-6 py-4">ID Dispositivo</th>
-                                        <th class="px-6 py-4">Conductor Asignado</th>
-                                        <th class="px-6 py-4">Placa</th>
-                                        <th class="px-6 py-4">Versión App</th>
-                                        <th class="px-6 py-4">Última Conexión</th>
-                                        <th class="px-6 py-4 text-right">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="devices-table-body" class="divide-y divide-slate-100">
-                                    <!-- Inyectado por JS -->
-                                </tbody>
-                            </table>
+                    <!-- Telemetry Meters Grid -->
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                            <span class="text-[10px] text-slate-600 uppercase font-semibold">Velocidad</span>
+                            <div class="text-lg font-bold font-mono text-emerald-600 mt-0.5" id="hud-speed">0 <span class="text-[10px] font-normal text-slate-600">km/h</span></div>
+                        </div>
+                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                            <span class="text-[10px] text-slate-600 uppercase font-semibold">Batería</span>
+                            <div class="text-lg font-bold font-mono text-cyan-600 mt-0.5" id="hud-battery">--%</div>
+                        </div>
+                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                            <span class="text-[10px] text-slate-600 uppercase font-semibold">Consumo Est.</span>
+                            <div class="text-lg font-bold font-mono text-amber-400 mt-0.5" id="hud-fuel">0.0 <span class="text-[10px] font-normal text-slate-600">L/h</span></div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- VISTA: CONDUCTORES -->
-            <div id="view-drivers" class="app-view absolute inset-0 hidden overflow-y-auto p-4 md:p-8 bg-slate-50">
-                <div class="max-w-7xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-900">Catálogo de Conductores</h2>
-                            <p class="text-slate-500 text-sm">Operadores autorizados para la flota</p>
+                    <!-- Details Row -->
+                    <div class="space-y-1.5 text-xs text-slate-700 font-mono bg-slate-50/60 p-2.5 rounded-lg border border-slate-200 mb-3">
+                        <div class="flex justify-between">
+                            <span class="text-slate-600 font-sans">Dispositivo (UID):</span>
+                            <span id="hud-device-uid" class="text-slate-900 font-bold">---</span>
                         </div>
-                        <button onclick="openNewDriverModal()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-sky-600/20 transition flex items-center gap-2 text-sm">
-                            <i class="ph-bold ph-plus"></i> Nuevo
+                        <div class="flex justify-between">
+                            <span class="text-slate-600 font-sans">Último Ping GPS:</span>
+                            <span id="hud-last-ping" class="text-emerald-600">En vivo</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600 font-sans">Fuerza G / Impacto:</span>
+                            <span id="hud-g-force" class="text-slate-700">1.00 G (Normal)</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick MDM Action Bar -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="requestScreenshotFromHud()" class="px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-300 transition-colors">
+                            <i data-lucide="camera" class="w-3.5 h-3.5 text-cyan-600"></i> Captura Pantalla
+                        </button>
+                        <button onclick="openMdmModalFromHud()" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
+                            <i data-lucide="shield" class="w-3.5 h-3.5"></i> Comandos MDM
                         </button>
                     </div>
-                    
-                    <div id="drivers-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Inyectado por JS -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- VIEW 2: DEVICES MANAGEMENT TABLE -->
+        <!-- ============================================================ -->
+        <div id="view-devices" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Dispositivos y Teléfonos Registrados</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Control de terminales móviles, versiones de APK instaladas y enlace de conductores</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="selectedDeviceUid='ALL_DEVICES'; openMdmModalFromHud();" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-blue-950/50">
+                            <i data-lucide="download" class="w-4 h-4"></i> Instalar APK a Todos
+                        </button>
+                        <button onclick="openEnrollmentQrModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
+                            <i data-lucide="qr-code" class="w-4 h-4"></i> Código QR de Aprovisionamiento
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- VISTA: APKS Y OTA -->
-            <div id="view-apks" class="app-view absolute inset-0 hidden overflow-y-auto p-4 md:p-8 bg-slate-50">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-2xl font-bold text-slate-900 mb-2">Lanzamientos OTA</h2>
-                    <p class="text-slate-500 text-sm mb-6">Sube y despacha actualizaciones silenciosas a toda la flota instantáneamente.</p>
-                    
-                    <!-- Subida -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div class="flex-1">
-                            <h3 class="font-bold text-slate-900 mb-1 flex items-center gap-2"><i class="ph-fill ph-upload-simple text-sky-600"></i> Subir Nuevo APK</h3>
-                            <p class="text-slate-500 text-xs">Carga el archivo .apk firmado (max 50MB) para distribuirlo vía OTA.</p>
-                        </div>
-                        <form id="upload-apk-form" class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                            <input type="text" id="apk-version-input" placeholder="Versión (ej. 1.0.2)" required class="bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-lg text-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none w-full md:w-32">
-                            <input type="file" id="apk-file-input" accept=".apk" required class="bg-slate-50 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100 w-full md:w-auto">
-                            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm transition shrink-0">Subir APK</button>
-                        </form>
-                    </div>
-
-                    <!-- Lista de versiones -->
-                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
+                <!-- Table Card -->
+                <div class="bg-white rounded-xl subtle-border overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-600 uppercase font-mono text-[10px] border-b border-slate-200">
                                 <tr>
-                                    <th class="px-6 py-4">Versión</th>
-                                    <th class="px-6 py-4">Fecha Subida</th>
-                                    <th class="px-6 py-4">Status</th>
-                                    <th class="px-6 py-4 text-right">Acción</th>
+                                    <th class="px-4 py-3">Estado</th>
+                                    <th class="px-4 py-3">Dispositivo / UID</th>
+                                    <th class="px-4 py-3">Chofer Asignado</th>
+                                    <th class="px-4 py-3">Vehículo / Placa</th>
+                                    <th class="px-4 py-3">Versión APK</th>
+                                    <th class="px-4 py-3">Último Enlace</th>
+                                    <th class="px-4 py-3 text-right">Acciones MDM</th>
                                 </tr>
                             </thead>
-                            <tbody id="apks-table-body" class="divide-y divide-slate-100">
-                                <!-- Inyectado -->
+                            <tbody id="devices-table-body" class="divide-y divide-slate-200 font-mono">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-8 text-center text-slate-600 font-sans">
+                                        Cargando inventario de dispositivos...
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- VISTA: DIAGNÓSTICO -->
-            <div id="view-diagnostics" class="app-view absolute inset-0 hidden overflow-y-auto p-4 md:p-8 bg-slate-50">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-2xl font-bold text-slate-900 mb-6">Diagnóstico de Servidor Hostinger</h2>
-                    <div id="diagnostic-results" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Inyectado por JS -->
+        <!-- ============================================================ -->
+        <!-- VIEW 3: DRIVERS & VEHICLES DIRECTORY -->
+        <!-- ============================================================ -->
+        <div id="view-drivers" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Directorio de Conductores y Flota</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Asignación de unidades, placas vehiculares y códigos de ruta comercial</p>
+                    </div>
+                    <button onclick="openNewDriverModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i> Registrar Conductor
+                    </button>
+                </div>
+
+                <!-- Drivers Grid -->
+                <div id="drivers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="p-8 text-center text-slate-600 text-xs col-span-full">
+                        Cargando plantilla de conductores...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- VIEW 4: APK MANAGER & OTA DISTRIBUTION -->
+        <!-- ============================================================ -->
+        <div id="view-apks" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Distribución y Actualización OTA de APKs</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Sube nuevas compilaciones para que las terminales móviles se actualicen silenciosamente</p>
+                    </div>
+                </div>
+
+                <!-- Upload Card -->
+                <div class="bg-white rounded-xl subtle-border p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-600"></i> Subir Nueva Versión de la Aplicación
+                    </h3>
+                    
+                    <form id="apk-upload-form" enctype="multipart/form-data" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de Versión (Ej. 1.0.2)</label>
+                                <input type="text" name="version_name" required placeholder="1.0.2" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-lg subtle-border font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Código de Versión (Ej. 2)</label>
+                                <input type="number" name="version_code" required placeholder="2" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-lg subtle-border font-mono">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Archivo APK Compilado (.apk)</label>
+                            <input type="file" name="apk_file" accept=".apk" required class="w-full bg-slate-50 text-xs text-slate-600 px-3 py-2 rounded-lg subtle-border file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-slate-900 hover:file:bg-emerald-500">
+                        </div>
+
+                        <button type="submit" id="btn-submit-apk" class="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-2 transition-colors">
+                            <i data-lucide="upload" class="w-4 h-4"></i> Publicar y Distribuir Actualización
+                        </button>
+                    </form>
+                </div>
+
+                <!-- APK History Table -->
+                <div class="bg-white rounded-xl subtle-border overflow-hidden">
+                    <div class="p-4 border-b border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-900">Historial de Versiones Publicadas</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] border-b border-slate-200">
+                                <tr>
+                                    <th class="px-4 py-3">Versión</th>
+                                    <th class="px-4 py-3">Código</th>
+                                    <th class="px-4 py-3">Archivo</th>
+                                    <th class="px-4 py-3">Fecha de Subida</th>
+                                    <th class="px-4 py-3">Estado</th>
+                                    <th class="px-4 py-3 text-right">Descargar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="apks-table-body" class="divide-y divide-slate-200">
+                                <tr>
+                                    <td colspan="6" class="px-4 py-6 text-center text-slate-600 font-sans">
+                                        Cargando versiones...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- VIEW 5: SERVER HEALTH & DIAGNOSTICS -->
+        <!-- ============================================================ -->
+        <div id="view-diagnostics" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Diagnóstico y Estado del Servidor</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Comprobación de conectividad MySQL, endpoints REST de telemetría y logs de entrada</p>
+                    </div>
+                    <button onclick="runServerDiagnostics()" class="px-3.5 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-xs font-semibold flex items-center gap-1.5 border border-slate-300">
+                        <i data-lucide="rotate-cw" class="w-4 h-4"></i> Volver a Ejecutar Diagnóstico
+                    </button>
+                </div>
+
+                <!-- Diagnostic Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl subtle-border">
+                        <span class="text-xs text-slate-600">Base de Datos MySQL</span>
+                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-db-status">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Conectada
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-mono mt-1">Hostinger Database Active</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl subtle-border">
+                        <span class="text-xs text-slate-600">Endpoint Telemetría (1Hz)</span>
+                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-api-status">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 200 OK
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-mono mt-1">/api/telemetry.php</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl subtle-border">
+                        <span class="text-xs text-slate-600">Canal de Comandos MDM</span>
+                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-mdm-status">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Activo
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-mono mt-1">/api/devices.php</p>
+                    </div>
+                </div>
+
+                <!-- Recent Raw Telemetry Log Viewer -->
+                <div class="bg-white rounded-xl subtle-border p-4 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase font-mono">Últimos Paquetes GPS Recibidos en Vivo</h3>
+                        <span class="text-[10px] text-slate-600 font-mono">Buffer de los últimos 20 pings</span>
+                    </div>
+                    <pre id="raw-telemetry-log" class="p-4 bg-slate-50 rounded-lg text-emerald-600 text-xs font-mono overflow-x-auto max-h-96 border border-slate-200">Esperando transmisiones...</pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: MDM REMOTE COMMANDS -->
+    <!-- ============================================================ -->
+    <div id="modal-mdm" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-lg shadow-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Comandos Remotos MDM</h3>
+                        <p class="text-xs text-slate-600 font-mono" id="mdm-modal-target-uid">Dispositivo: ---</p>
+                    </div>
+                </div>
+                <button onclick="closeMdmModal()" class="text-slate-600 hover:text-slate-900 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Command Options -->
+            <div class="space-y-3">
+                <!-- 1. Enviar Alerta de Texto -->
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-600"></i> Enviar Mensaje Prioritario al Chofer
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="mdm-input-msg" placeholder="Ej. Reportarse a base de inmediato..." class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-emerald-500">
+                        <button onclick="sendMdmCommand('message')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-xs text-slate-900 font-semibold rounded-md border border-slate-300">Enviar</button>
+                    </div>
+                </div>
+
+                <!-- 2. Sonar Sirena de Alarma -->
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div>
+                        <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-amber-400"></i> Alarma Sonora en Cabina
+                        </div>
+                        <p class="text-[11px] text-slate-600">Suena la bocina del teléfono a máximo volumen</p>
+                    </div>
+                    <button onclick="sendMdmCommand('siren')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-900 text-xs font-semibold rounded-md">Sonar 15s</button>
+                </div>
+
+                <!-- 3. Solicitar Captura de Pantalla -->
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div>
+                        <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-600"></i> Captura de Pantalla en Vivo
+                        </div>
+                        <p class="text-[11px] text-slate-600">Toma una foto de lo que el chofer está viendo ahora</p>
+                    </div>
+                    <button onclick="sendMdmCommand('screenshot')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold rounded-md">Solicitar</button>
+                </div>
+
+                <!-- 4. Fijar Paquete de App de Ventas -->
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="package" class="w-3.5 h-3.5 text-indigo-400"></i> Fijar App de Ventas Autorizada en Kiosco
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="mdm-input-pkg" placeholder="Ej. com.rutacontrol.ventas" class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border font-mono">
+                        <button onclick="sendMdmCommand('set_package')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-xs text-slate-900 font-semibold rounded-md border border-slate-300">Fijar</button>
+                    </div>
+                </div>
+
+                <!-- 5. Forzar Instalación APK (MDM) -->
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-blue-600"></i> Instalar APK Silencioso
+                    </label>
+                    <p class="text-[11px] text-slate-600">Pega el link directo (.apk) para forzar la instalación de cualquier app</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="mdm-input-apk" placeholder="https://ejemplo.com/app.apk" class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-blue-500">
+                        <button onclick="sendMdmCommand('force_ota')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md border border-blue-600">Instalar</button>
                     </div>
                 </div>
             </div>
 
-        </div> <!-- /Tabs -->
-    </main>
-
-    <!-- ============================================== -->
-    <!-- MODALES (Ocultos por defecto)                  -->
-    <!-- ============================================== -->
-
-    <!-- Modal MDM Consola -->
-    <div id="mdm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-full">
-            <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="ph-bold ph-terminal-window text-sky-600"></i> Consola MDM Remota</h3>
-                <button onclick="closeMdmModal()" class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-xl"></i></button>
-            </div>
-            <div class="p-6 overflow-y-auto">
-                <p class="text-slate-500 text-sm mb-4">Ejecutando en dispositivo: <strong class="text-sky-600 font-mono" id="mdm-target-uid"></strong></p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                    <button onclick="sendMdmCommand('WIPE_FACTORY')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 p-3 rounded-xl flex items-center gap-3 transition text-left">
-                        <i class="ph-fill ph-warning-octagon text-2xl"></i>
-                        <div><p class="font-bold text-sm">Wipe Factory</p><p class="text-[10px] opacity-80">Formateo remoto total</p></div>
-                    </button>
-                    <button onclick="sendMdmCommand('LOCK_DEVICE')" class="bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-100 p-3 rounded-xl flex items-center gap-3 transition text-left">
-                        <i class="ph-fill ph-lock-key text-2xl"></i>
-                        <div><p class="font-bold text-sm">Bloquear Pantalla</p><p class="text-[10px] opacity-80">Apaga y bloquea</p></div>
-                    </button>
-                    <button onclick="sendMdmCommand('REBOOT')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 p-3 rounded-xl flex items-center gap-3 transition text-left">
-                        <i class="ph-bold ph-power text-2xl"></i>
-                        <div><p class="font-bold text-sm">Reiniciar</p><p class="text-[10px] text-slate-500">Reinicio forzado (Root/MDM)</p></div>
-                    </button>
-                    <button onclick="sendMdmCommand('RESTART_APP')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-100 p-3 rounded-xl flex items-center gap-3 transition text-left">
-                        <i class="ph-bold ph-arrows-clockwise text-2xl"></i>
-                        <div><p class="font-bold text-sm">Reiniciar App Kiosco</p><p class="text-[10px] opacity-80">Mata el proceso y reabre</p></div>
-                    </button>
-                </div>
-            </div>
+            <!-- Feedback Alert -->
+            <div id="mdm-feedback" class="hidden p-3 rounded-lg text-xs font-mono"></div>
         </div>
     </div>
 
-    <!-- Modal QR -->
-    <div id="qr-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-6 text-center">
-            <h3 class="font-bold text-slate-900 text-xl mb-2">Enrolar Android</h3>
-            <p class="text-sm text-slate-500 mb-6">Enciende un dispositivo Android nuevo y toca 6 veces la pantalla de bienvenida para escanear.</p>
-            <div class="bg-white border border-slate-200 p-4 rounded-xl inline-block mb-6 mx-auto shadow-sm">
-                <img id="qr-image" src="" alt="QR" class="w-48 h-48">
-            </div>
-            <button onclick="closeQrModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition">Cerrar</button>
-        </div>
-    </div>
+    <!-- ============================================================ -->
 
-    <!-- Modal Nuevo Conductor -->
-    <div id="modal-driver" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-900">Nuevo Conductor</h3>
-                <button onclick="document.getElementById('modal-driver').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-xl"></i></button>
+    <!-- ============================================================ -->
+    <!-- MODAL: CREAR CONDUCTOR -->
+    <!-- ============================================================ -->
+    <div id="modal-driver" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-md shadow-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-emerald-600"></i>
+                    <h3 class="text-sm font-bold text-slate-900">Registrar Conductor</h3>
+                </div>
+                <button onclick="document.getElementById('modal-driver').classList.add('hidden')" class="text-slate-600 hover:text-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
-            <form id="form-driver" class="p-6 flex flex-col gap-4">
+            <form id="form-driver" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">Nombre Completo</label>
-                    <input type="text" id="driver-name" required class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-xl focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre Completo</label>
+                    <input type="text" id="driver-name" required class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">Teléfono</label>
-                    <input type="text" id="driver-phone" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-xl focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
+                    <input type="text" id="driver-phone" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">Placas del Vehículo</label>
-                    <input type="text" id="driver-plate" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-xl uppercase focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Placas de Vehículo</label>
+                    <input type="text" id="driver-plate" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:border-emerald-500">
                 </div>
-                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-sky-600/20 mt-2 transition">Guardar Conductor</button>
+                <div class="pt-2">
+                    <button type="submit" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-bold rounded-lg transition-colors">Guardar Conductor</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Captura Pantalla -->
-    <div id="screenshot-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1100] hidden flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
-            <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="ph-bold ph-camera text-sky-600"></i> Captura de Pantalla Remota</h3>
-                <div class="flex items-center gap-3">
-                    <button onclick="refreshScreenshot()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-sm">
-                        <i class="ph-bold ph-arrows-clockwise"></i> Refrescar Imagen
-                    </button>
-                    <button onclick="closeScreenshotModal()" class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-xl"></i></button>
+    <!-- MODAL: SCREENSHOT VIEWER -->
+    <!-- ============================================================ -->
+    <div id="modal-screenshot" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-2xl shadow-2xl p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+                    <h3 class="text-sm font-bold text-slate-900" id="screenshot-title">Captura de Pantalla Bajo Demanda</h3>
                 </div>
+                <button onclick="closeScreenshotModal()" class="text-slate-600 hover:text-slate-900 p-1">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
-            <div class="p-6 flex-1 flex flex-col items-center justify-center bg-slate-50 min-h-[400px]">
-                <p id="screenshot-status" class="text-slate-500 text-sm mb-4 animate-pulse">Solicitando captura al dispositivo...</p>
-                <img id="screenshot-image" src="" alt="Captura remota" class="max-w-full max-h-[60vh] object-contain rounded-lg border border-slate-200 shadow-md hidden">
-                <p id="screenshot-time" class="text-xs text-slate-500 mt-3 hidden"></p>
+            
+            <div class="bg-black rounded-lg flex items-center justify-center p-2 min-h-[360px]">
+                <img id="screenshot-img" src="" alt="Captura de Pantalla" class="max-h-[500px] object-contain rounded">
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-600 font-mono">
+                <span id="screenshot-timestamp">Tomada: ---</span>
+                <button onclick="refreshScreenshot()" class="text-emerald-600 hover:underline flex items-center gap-1 font-sans">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar captura
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT INYECTADO -->
-    <script>
+    <!-- ============================================================ -->
+    <!-- MODAL: QR PROVISIONING CODE -->
+    <!-- ============================================================ -->
+    <div id="modal-qr" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-md shadow-2xl p-6 text-center space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 class="text-base font-bold text-slate-900">QR de Aprovisionamiento Device Owner</h3>
+                <button onclick="closeQrModal()" class="text-slate-600 hover:text-slate-900 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
 
+            <p class="text-xs text-slate-600">
+                Enciende un teléfono de fábrica o recién formateado, pulsa 6 veces en la pantalla de bienvenida y escanea este código QR:
+            </p>
+
+            <div class="p-4 bg-white rounded-xl inline-block mx-auto shadow-xl">
+                <div id="qrcode-container"></div>
+            </div>
+
+            <p class="text-[11px] font-mono text-emerald-600 break-all">
+                https://zoltrak.websolutionsgarcia.com/api/apks.php?action=download_active
+            </p>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT CORE ENGINE (Real-time Fleet Polling & Leaflet) -->
+    <!-- ============================================================ -->
+    <script>
         // State
         let map = null;
         let vehicleMarkers = {};
@@ -876,16 +1096,16 @@ try {
         function switchTab(tabId) {
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('bg-sky-50', 'text-sky-700', 'font-semibold');
-                b.classList.add('text-slate-500', 'hover:bg-slate-50', 'hover:text-slate-700');
+                b.classList.remove('bg-slate-200', 'text-slate-900', 'shadow-sm');
+                b.classList.add('text-slate-600');
             });
 
             const targetView = document.getElementById(`view-${tabId}`);
             const targetBtn = document.getElementById(`tab-btn-${tabId}`);
             if (targetView && targetBtn) {
                 targetView.classList.remove('hidden');
-                targetBtn.classList.add('bg-sky-50', 'text-sky-700', 'font-semibold');
-                targetBtn.classList.remove('text-slate-500', 'hover:bg-slate-50', 'hover:text-slate-700');
+                targetBtn.classList.add('bg-slate-200', 'text-slate-900', 'shadow-sm');
+                targetBtn.classList.remove('text-slate-600');
             }
 
             if (tabId === 'map' && map) {
@@ -982,7 +1202,7 @@ try {
         }
         
         async function deleteDevice(uid) {
-            if ((await Swal.fire({title: "¿Borrar dispositivo?", text: "Se borrará su historial de telemetría.", icon: "warning", showCancelButton: true, confirmButtonColor: "#ef4444", confirmButtonText: "Sí, borrar"})).isConfirmed) {
+            if ((await Swal.fire({title: "¿Borrar dispositivo?", text: "Se borrará su historial.", icon: "warning", showCancelButton: true, confirmButtonColor: "#ef4444", confirmButtonText: "Sí, borrar"})).isConfirmed) {
                 await fetch('/api/devices.php?device_uid=' + uid, { method: 'DELETE' });
                 Swal.fire("Borrado", "Dispositivo eliminado", "success");
                 fetchTelemetry();
@@ -990,7 +1210,7 @@ try {
         }
         
         async function assignDriver(deviceUid) {
-            const driverId = await Swal.fire({title: "Asignar Conductor", input: "number", inputLabel: "ID Numérico del conductor", showCancelButton: true, confirmButtonColor: "#0284c7"}).then(r => r.value);
+            const driverId = await Swal.fire({title: "Asignar Conductor", input: "number", inputLabel: "ID Numérico del conductor", showCancelButton: true, confirmButtonColor: "#10b981"}).then(r => r.value);
             if (driverId) {
                 await fetch('/api/drivers.php', { method: 'POST', body: JSON.stringify({ action: 'assign_device', driver_id: driverId, device_uid: deviceUid }) });
                 Swal.fire("¡Éxito!", "Conductor asignado correctamente", "success");
@@ -1133,7 +1353,6 @@ try {
             fetchTelemetry();
             setInterval(fetchTelemetry, 1500);
         });
-    
     </script>
 </body>
 </html>
