@@ -37,7 +37,7 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-[#090d16] text-slate-200 antialiased">
+<html lang="es" class="h-full bg-slate-50 text-slate-800 antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -136,45 +136,45 @@ try {
         }
     </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden bg-[#070a10]">
+<body class="h-full flex flex-col overflow-hidden bg-white">
 
     <!-- ============================================================ -->
     <!-- TOP NAVIGATION BAR (Minimalist, Dense, High-Contrast) -->
     <!-- ============================================================ -->
-    <header class="h-14 bg-dark-900 subtle-border border-b flex items-center justify-between px-4 z-40 shrink-0">
+    <header class="h-14 bg-white subtle-border border-b flex items-center justify-between px-4 z-40 shrink-0">
         <!-- Logo & Platform Identity -->
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-950/50">
-                <i data-lucide="navigation" class="w-4 h-4 text-white"></i>
+                <i data-lucide="navigation" class="w-4 h-4 text-slate-900"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="font-bold tracking-tight text-white text-sm">RUTACONTROL</span>
-                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-mono font-semibold uppercase tracking-wider border border-emerald-500/20">MDM 1.0</span>
+                    <span class="font-bold tracking-tight text-slate-900 text-sm">RUTACONTROL</span>
+                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-mono font-semibold uppercase tracking-wider border border-emerald-500/20">MDM 1.0</span>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Tabs -->
-        <nav class="flex items-center gap-1 bg-dark-950/80 p-1 rounded-lg subtle-border">
-            <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-dark-800 text-white shadow-sm">
-                <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <nav class="flex items-center gap-1 bg-slate-50/80 p-1 rounded-lg subtle-border">
+            <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-slate-200 text-slate-900 shadow-sm">
+                <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-600"></i>
                 <span>Mapa en Vivo</span>
             </button>
-            <button onclick="switchTab('devices')" id="tab-btn-devices" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('devices')" id="tab-btn-devices" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
                 <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
                 <span>Dispositivos</span>
-                <span id="badge-total-devs" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-dark-800 text-[10px] font-mono text-slate-400 font-bold"><?= $totalDevices ?></span>
+                <span id="badge-total-devs" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-slate-200 text-[10px] font-mono text-slate-600 font-bold"><?= $totalDevices ?></span>
             </button>
-            <button onclick="switchTab('drivers')" id="tab-btn-drivers" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('drivers')" id="tab-btn-drivers" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
                 <i data-lucide="users" class="w-3.5 h-3.5"></i>
                 <span>Conductores</span>
             </button>
-            <button onclick="switchTab('apks')" id="tab-btn-apks" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('apks')" id="tab-btn-apks" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
                 <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
                 <span>Distribución OTA</span>
             </button>
-            <button onclick="switchTab('diagnostics')" id="tab-btn-diagnostics" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('diagnostics')" id="tab-btn-diagnostics" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 text-slate-600 hover:text-slate-800">
                 <i data-lucide="activity" class="w-3.5 h-3.5"></i>
                 <span>Salud del Servidor</span>
             </button>
@@ -183,26 +183,26 @@ try {
         <!-- Right Side: Live Fleet Metrics Pill & System Clock -->
         <div class="flex items-center gap-3">
             <!-- Metric Pills -->
-            <div class="hidden lg:flex items-center gap-2 bg-dark-950 px-3 py-1 rounded-lg subtle-border font-mono text-xs">
-                <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+            <div class="hidden lg:flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-lg subtle-border font-mono text-xs">
+                <div class="flex items-center gap-1.5 text-emerald-600 font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="metric-moving"><?= $movingNow ?></span> <span class="text-slate-400 font-sans font-normal text-[11px]">en ruta</span>
+                    <span id="metric-moving"><?= $movingNow ?></span> <span class="text-slate-600 font-sans font-normal text-[11px]">en ruta</span>
                 </div>
                 <span class="text-slate-700">|</span>
                 <div class="flex items-center gap-1.5 text-amber-400 font-semibold">
                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span id="metric-active"><?= $activeNow ?></span> <span class="text-slate-400 font-sans font-normal text-[11px]">en línea</span>
+                    <span id="metric-active"><?= $activeNow ?></span> <span class="text-slate-600 font-sans font-normal text-[11px]">en línea</span>
                 </div>
                 <span class="text-slate-700">|</span>
-                <div class="flex items-center gap-1.5 text-slate-400 font-semibold">
+                <div class="flex items-center gap-1.5 text-slate-600 font-semibold">
                     <span class="w-2 h-2 rounded-full bg-slate-600"></span>
                     <span id="metric-offline"><?= $offlineNow ?></span> <span class="text-slate-500 font-sans font-normal text-[11px]">inactivos</span>
                 </div>
             </div>
 
             <!-- Auto-refresh Indicator -->
-            <div class="flex items-center gap-2 text-xs font-mono text-slate-400 bg-dark-850 px-2.5 py-1 rounded-md subtle-border">
-                <i data-lucide="refresh-cw" id="sync-icon" class="w-3 h-3 text-emerald-400 transition-transform"></i>
+            <div class="flex items-center gap-2 text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md subtle-border">
+                <i data-lucide="refresh-cw" id="sync-icon" class="w-3 h-3 text-emerald-600 transition-transform"></i>
                 <span id="sync-timer" class="text-[11px]">1s</span>
             </div>
         </div>
@@ -219,35 +219,35 @@ try {
         <div id="view-map" class="app-view w-full h-full flex relative">
             
             <!-- Left Collapsible Sidebar: Fleet List & Search -->
-            <aside id="fleet-sidebar" class="w-80 lg:w-96 bg-dark-900/95 subtle-border border-r z-20 flex flex-col shrink-0 transition-all duration-300">
+            <aside id="fleet-sidebar" class="w-80 lg:w-96 bg-white/95 subtle-border border-r z-20 flex flex-col shrink-0 transition-all duration-300">
                 <!-- Search & Filters -->
-                <div class="p-3 border-b border-dark-700/50 space-y-2">
+                <div class="p-3 border-b border-slate-300/50 space-y-2">
                     <div class="relative">
-                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
-                        <input type="text" id="fleet-search" placeholder="Buscar chofer, placa, ruta o UID..." class="w-full bg-dark-950 text-xs text-white pl-9 pr-3 py-2 rounded-lg subtle-border focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-500 font-mono">
+                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-600"></i>
+                        <input type="text" id="fleet-search" placeholder="Buscar chofer, placa, ruta o UID..." class="w-full bg-slate-50 text-xs text-slate-900 pl-9 pr-3 py-2 rounded-lg subtle-border focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-500 font-mono">
                     </div>
                     
                     <!-- Filter Chips -->
                     <div class="flex items-center gap-1 text-[11px] font-medium">
-                        <button onclick="setFilter('all')" id="filter-all" class="filter-chip px-2.5 py-1 rounded bg-dark-800 text-white subtle-border">Todos</button>
-                        <button onclick="setFilter('moving')" id="filter-moving" class="filter-chip px-2.5 py-1 rounded text-slate-400 hover:text-white subtle-border">En Ruta</button>
-                        <button onclick="setFilter('stopped')" id="filter-stopped" class="filter-chip px-2.5 py-1 rounded text-slate-400 hover:text-white subtle-border">Detenidos</button>
-                        <button onclick="setFilter('offline')" id="filter-offline" class="filter-chip px-2.5 py-1 rounded text-slate-400 hover:text-white subtle-border">Sin Señal</button>
+                        <button onclick="setFilter('all')" id="filter-all" class="filter-chip px-2.5 py-1 rounded bg-slate-200 text-slate-900 subtle-border">Todos</button>
+                        <button onclick="setFilter('moving')" id="filter-moving" class="filter-chip px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 subtle-border">En Ruta</button>
+                        <button onclick="setFilter('stopped')" id="filter-stopped" class="filter-chip px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 subtle-border">Detenidos</button>
+                        <button onclick="setFilter('offline')" id="filter-offline" class="filter-chip px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 subtle-border">Sin Señal</button>
                     </div>
                 </div>
 
                 <!-- Devices / Units List -->
-                <div id="fleet-items-container" class="flex-1 overflow-y-auto divide-y divide-dark-800/60 p-1.5 space-y-1">
-                    <div class="p-8 text-center text-slate-400 text-xs">
-                        <i data-lucide="loader" class="w-5 h-5 mx-auto animate-spin text-emerald-400 mb-2"></i>
+                <div id="fleet-items-container" class="flex-1 overflow-y-auto divide-y divide-slate-200 p-1.5 space-y-1">
+                    <div class="p-8 text-center text-slate-600 text-xs">
+                        <i data-lucide="loader" class="w-5 h-5 mx-auto animate-spin text-emerald-600 mb-2"></i>
                         Cargando telemetría de unidades...
                     </div>
                 </div>
 
                 <!-- Footer Summary -->
-                <div class="p-2.5 bg-dark-950 border-t border-dark-800 text-[11px] font-mono text-slate-400 flex justify-between items-center">
+                <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-[11px] font-mono text-slate-600 flex justify-between items-center">
                     <span id="fleet-count-summary">0 unidades registradas</span>
-                    <button onclick="fitAllMarkers()" class="text-emerald-400 hover:underline flex items-center gap-1 font-sans">
+                    <button onclick="fitAllMarkers()" class="text-emerald-600 hover:underline flex items-center gap-1 font-sans">
                         <i data-lucide="maximize" class="w-3 h-3"></i> Encuadrar mapa
                     </button>
                 </div>
@@ -259,69 +259,69 @@ try {
 
                 <!-- Map Quick Controls Overlay (Top Right) -->
                 <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                    <button onclick="toggleMapLayer()" title="Alternar Mapa Satélite / Oscuro" class="hud-glass p-2.5 rounded-lg text-slate-300 hover:text-white transition-colors shadow-xl">
+                    <button onclick="toggleMapLayer()" title="Alternar Mapa Satélite / Oscuro" class="hud-glass p-2.5 rounded-lg text-slate-700 hover:text-slate-900 transition-colors shadow-xl">
                         <i data-lucide="layers" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="fitAllMarkers()" title="Enfocar toda la flota" class="hud-glass p-2.5 rounded-lg text-slate-300 hover:text-white transition-colors shadow-xl">
+                    <button onclick="fitAllMarkers()" title="Enfocar toda la flota" class="hud-glass p-2.5 rounded-lg text-slate-700 hover:text-slate-900 transition-colors shadow-xl">
                         <i data-lucide="crosshair" class="w-4 h-4"></i>
                     </button>
                 </div>
 
                 <!-- Floating Telemetry HUD / Driver Inspector (Bottom Right) -->
                 <div id="telemetry-hud" class="hidden absolute bottom-4 right-4 z-20 w-96 hud-glass rounded-xl shadow-2xl p-4 transition-all duration-300">
-                    <div class="flex items-start justify-between border-b border-white/10 pb-3 mb-3">
+                    <div class="flex items-start justify-between border-b border-slate-300 pb-3 mb-3">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600">
                                 <i data-lucide="truck" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 id="hud-driver-name" class="font-bold text-white text-sm leading-none">Unidad Sin Asignar</h3>
-                                <p id="hud-vehicle-plate" class="text-xs text-slate-400 font-mono mt-1">PLACA: --- • RUTA: ---</p>
+                                <h3 id="hud-driver-name" class="font-bold text-slate-900 text-sm leading-none">Unidad Sin Asignar</h3>
+                                <p id="hud-vehicle-plate" class="text-xs text-slate-600 font-mono mt-1">PLACA: --- • RUTA: ---</p>
                             </div>
                         </div>
-                        <button onclick="closeHud()" class="text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/5">
+                        <button onclick="closeHud()" class="text-slate-600 hover:text-slate-900 p-1 rounded-md hover:bg-white/5">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
 
                     <!-- Telemetry Meters Grid -->
                     <div class="grid grid-cols-3 gap-2 mb-3">
-                        <div class="bg-dark-950/80 p-2.5 rounded-lg border border-white/5 text-center">
-                            <span class="text-[10px] text-slate-400 uppercase font-semibold">Velocidad</span>
-                            <div class="text-lg font-bold font-mono text-emerald-400 mt-0.5" id="hud-speed">0 <span class="text-[10px] font-normal text-slate-400">km/h</span></div>
+                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                            <span class="text-[10px] text-slate-600 uppercase font-semibold">Velocidad</span>
+                            <div class="text-lg font-bold font-mono text-emerald-600 mt-0.5" id="hud-speed">0 <span class="text-[10px] font-normal text-slate-600">km/h</span></div>
                         </div>
-                        <div class="bg-dark-950/80 p-2.5 rounded-lg border border-white/5 text-center">
-                            <span class="text-[10px] text-slate-400 uppercase font-semibold">Batería</span>
-                            <div class="text-lg font-bold font-mono text-cyan-400 mt-0.5" id="hud-battery">--%</div>
+                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                            <span class="text-[10px] text-slate-600 uppercase font-semibold">Batería</span>
+                            <div class="text-lg font-bold font-mono text-cyan-600 mt-0.5" id="hud-battery">--%</div>
                         </div>
-                        <div class="bg-dark-950/80 p-2.5 rounded-lg border border-white/5 text-center">
-                            <span class="text-[10px] text-slate-400 uppercase font-semibold">Consumo Est.</span>
-                            <div class="text-lg font-bold font-mono text-amber-400 mt-0.5" id="hud-fuel">0.0 <span class="text-[10px] font-normal text-slate-400">L/h</span></div>
+                        <div class="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200 text-center">
+                            <span class="text-[10px] text-slate-600 uppercase font-semibold">Consumo Est.</span>
+                            <div class="text-lg font-bold font-mono text-amber-400 mt-0.5" id="hud-fuel">0.0 <span class="text-[10px] font-normal text-slate-600">L/h</span></div>
                         </div>
                     </div>
 
                     <!-- Details Row -->
-                    <div class="space-y-1.5 text-xs text-slate-300 font-mono bg-dark-950/60 p-2.5 rounded-lg border border-white/5 mb-3">
+                    <div class="space-y-1.5 text-xs text-slate-700 font-mono bg-slate-50/60 p-2.5 rounded-lg border border-slate-200 mb-3">
                         <div class="flex justify-between">
-                            <span class="text-slate-400 font-sans">Dispositivo (UID):</span>
-                            <span id="hud-device-uid" class="text-white font-bold">---</span>
+                            <span class="text-slate-600 font-sans">Dispositivo (UID):</span>
+                            <span id="hud-device-uid" class="text-slate-900 font-bold">---</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-400 font-sans">Último Ping GPS:</span>
-                            <span id="hud-last-ping" class="text-emerald-400">En vivo</span>
+                            <span class="text-slate-600 font-sans">Último Ping GPS:</span>
+                            <span id="hud-last-ping" class="text-emerald-600">En vivo</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-400 font-sans">Fuerza G / Impacto:</span>
-                            <span id="hud-g-force" class="text-slate-300">1.00 G (Normal)</span>
+                            <span class="text-slate-600 font-sans">Fuerza G / Impacto:</span>
+                            <span id="hud-g-force" class="text-slate-700">1.00 G (Normal)</span>
                         </div>
                     </div>
 
                     <!-- Quick MDM Action Bar -->
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="requestScreenshotFromHud()" class="px-3 py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 border border-white/10 transition-colors">
-                            <i data-lucide="camera" class="w-3.5 h-3.5 text-cyan-400"></i> Captura Pantalla
+                        <button onclick="requestScreenshotFromHud()" class="px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-300 transition-colors">
+                            <i data-lucide="camera" class="w-3.5 h-3.5 text-cyan-600"></i> Captura Pantalla
                         </button>
-                        <button onclick="openMdmModalFromHud()" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
+                        <button onclick="openMdmModalFromHud()" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
                             <i data-lucide="shield" class="w-3.5 h-3.5"></i> Comandos MDM
                         </button>
                     </div>
@@ -333,26 +333,29 @@ try {
         <!-- ============================================================ -->
         <!-- VIEW 2: DEVICES MANAGEMENT TABLE -->
         <!-- ============================================================ -->
-        <div id="view-devices" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-dark-950">
+        <div id="view-devices" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
             <div class="max-w-7xl mx-auto space-y-6">
                 <!-- Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dark-800 pb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Dispositivos y Teléfonos Registrados</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Control de terminales móviles, versiones de APK instaladas y enlace de conductores</p>
+                        <h2 class="text-xl font-bold text-slate-900">Dispositivos y Teléfonos Registrados</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Control de terminales móviles, versiones de APK instaladas y enlace de conductores</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="openEnrollmentQrModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
+                        <button onclick="selectedDeviceUid='ALL_DEVICES'; openMdmModalFromHud();" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-blue-950/50">
+                            <i data-lucide="download" class="w-4 h-4"></i> Instalar APK a Todos
+                        </button>
+                        <button onclick="openEnrollmentQrModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-lg shadow-emerald-950/50">
                             <i data-lucide="qr-code" class="w-4 h-4"></i> Código QR de Aprovisionamiento
                         </button>
                     </div>
                 </div>
 
                 <!-- Table Card -->
-                <div class="bg-dark-900 rounded-xl subtle-border overflow-hidden">
+                <div class="bg-white rounded-xl subtle-border overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
-                            <thead class="bg-dark-950 text-slate-400 uppercase font-mono text-[10px] border-b border-dark-800">
+                            <thead class="bg-slate-50 text-slate-600 uppercase font-mono text-[10px] border-b border-slate-200">
                                 <tr>
                                     <th class="px-4 py-3">Estado</th>
                                     <th class="px-4 py-3">Dispositivo / UID</th>
@@ -363,9 +366,9 @@ try {
                                     <th class="px-4 py-3 text-right">Acciones MDM</th>
                                 </tr>
                             </thead>
-                            <tbody id="devices-table-body" class="divide-y divide-dark-800 font-mono">
+                            <tbody id="devices-table-body" class="divide-y divide-slate-200 font-mono">
                                 <tr>
-                                    <td colspan="7" class="px-4 py-8 text-center text-slate-400 font-sans">
+                                    <td colspan="7" class="px-4 py-8 text-center text-slate-600 font-sans">
                                         Cargando inventario de dispositivos...
                                     </td>
                                 </tr>
@@ -379,22 +382,22 @@ try {
         <!-- ============================================================ -->
         <!-- VIEW 3: DRIVERS & VEHICLES DIRECTORY -->
         <!-- ============================================================ -->
-        <div id="view-drivers" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-dark-950">
+        <div id="view-drivers" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
             <div class="max-w-7xl mx-auto space-y-6">
                 <!-- Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dark-800 pb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Directorio de Conductores y Flota</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Asignación de unidades, placas vehiculares y códigos de ruta comercial</p>
+                        <h2 class="text-xl font-bold text-slate-900">Directorio de Conductores y Flota</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Asignación de unidades, placas vehiculares y códigos de ruta comercial</p>
                     </div>
-                    <button onclick="openNewDriverModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                    <button onclick="openNewDriverModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-colors">
                         <i data-lucide="user-plus" class="w-4 h-4"></i> Registrar Conductor
                     </button>
                 </div>
 
                 <!-- Drivers Grid -->
                 <div id="drivers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="p-8 text-center text-slate-400 text-xs col-span-full">
+                    <div class="p-8 text-center text-slate-600 text-xs col-span-full">
                         Cargando plantilla de conductores...
                     </div>
                 </div>
@@ -404,53 +407,53 @@ try {
         <!-- ============================================================ -->
         <!-- VIEW 4: APK MANAGER & OTA DISTRIBUTION -->
         <!-- ============================================================ -->
-        <div id="view-apks" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-dark-950">
+        <div id="view-apks" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
             <div class="max-w-5xl mx-auto space-y-6">
                 <!-- Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dark-800 pb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Distribución y Actualización OTA de APKs</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Sube nuevas compilaciones para que las terminales móviles se actualicen silenciosamente</p>
+                        <h2 class="text-xl font-bold text-slate-900">Distribución y Actualización OTA de APKs</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Sube nuevas compilaciones para que las terminales móviles se actualicen silenciosamente</p>
                     </div>
                 </div>
 
                 <!-- Upload Card -->
-                <div class="bg-dark-900 rounded-xl subtle-border p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-400"></i> Subir Nueva Versión de la Aplicación
+                <div class="bg-white rounded-xl subtle-border p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-600"></i> Subir Nueva Versión de la Aplicación
                     </h3>
                     
                     <form id="apk-upload-form" enctype="multipart/form-data" class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de Versión (Ej. 1.0.2)</label>
-                                <input type="text" name="version_name" required placeholder="1.0.2" class="w-full bg-dark-950 text-xs text-white px-3 py-2 rounded-lg subtle-border font-mono">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de Versión (Ej. 1.0.2)</label>
+                                <input type="text" name="version_name" required placeholder="1.0.2" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-lg subtle-border font-mono">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-300 mb-1">Código de Versión (Ej. 2)</label>
-                                <input type="number" name="version_code" required placeholder="2" class="w-full bg-dark-950 text-xs text-white px-3 py-2 rounded-lg subtle-border font-mono">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Código de Versión (Ej. 2)</label>
+                                <input type="number" name="version_code" required placeholder="2" class="w-full bg-slate-50 text-xs text-slate-900 px-3 py-2 rounded-lg subtle-border font-mono">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Archivo APK Compilado (.apk)</label>
-                            <input type="file" name="apk_file" accept=".apk" required class="w-full bg-dark-950 text-xs text-slate-400 px-3 py-2 rounded-lg subtle-border file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Archivo APK Compilado (.apk)</label>
+                            <input type="file" name="apk_file" accept=".apk" required class="w-full bg-slate-50 text-xs text-slate-600 px-3 py-2 rounded-lg subtle-border file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-slate-900 hover:file:bg-emerald-500">
                         </div>
 
-                        <button type="submit" id="btn-submit-apk" class="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2 transition-colors">
+                        <button type="submit" id="btn-submit-apk" class="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold flex items-center gap-2 transition-colors">
                             <i data-lucide="upload" class="w-4 h-4"></i> Publicar y Distribuir Actualización
                         </button>
                     </form>
                 </div>
 
                 <!-- APK History Table -->
-                <div class="bg-dark-900 rounded-xl subtle-border overflow-hidden">
-                    <div class="p-4 border-b border-dark-800">
-                        <h3 class="text-sm font-bold text-white">Historial de Versiones Publicadas</h3>
+                <div class="bg-white rounded-xl subtle-border overflow-hidden">
+                    <div class="p-4 border-b border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-900">Historial de Versiones Publicadas</h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs font-mono">
-                            <thead class="bg-dark-950 text-slate-400 uppercase text-[10px] border-b border-dark-800">
+                            <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] border-b border-slate-200">
                                 <tr>
                                     <th class="px-4 py-3">Versión</th>
                                     <th class="px-4 py-3">Código</th>
@@ -460,9 +463,9 @@ try {
                                     <th class="px-4 py-3 text-right">Descargar</th>
                                 </tr>
                             </thead>
-                            <tbody id="apks-table-body" class="divide-y divide-dark-800">
+                            <tbody id="apks-table-body" class="divide-y divide-slate-200">
                                 <tr>
-                                    <td colspan="6" class="px-4 py-6 text-center text-slate-400 font-sans">
+                                    <td colspan="6" class="px-4 py-6 text-center text-slate-600 font-sans">
                                         Cargando versiones...
                                     </td>
                                 </tr>
@@ -476,40 +479,40 @@ try {
         <!-- ============================================================ -->
         <!-- VIEW 5: SERVER HEALTH & DIAGNOSTICS -->
         <!-- ============================================================ -->
-        <div id="view-diagnostics" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-dark-950">
+        <div id="view-diagnostics" class="app-view hidden w-full h-full p-6 overflow-y-auto bg-slate-50">
             <div class="max-w-5xl mx-auto space-y-6">
                 <!-- Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dark-800 pb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Diagnóstico y Estado del Servidor</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Comprobación de conectividad MySQL, endpoints REST de telemetría y logs de entrada</p>
+                        <h2 class="text-xl font-bold text-slate-900">Diagnóstico y Estado del Servidor</h2>
+                        <p class="text-xs text-slate-600 mt-0.5">Comprobación de conectividad MySQL, endpoints REST de telemetría y logs de entrada</p>
                     </div>
-                    <button onclick="runServerDiagnostics()" class="px-3.5 py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-white text-xs font-semibold flex items-center gap-1.5 border border-dark-700">
+                    <button onclick="runServerDiagnostics()" class="px-3.5 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-xs font-semibold flex items-center gap-1.5 border border-slate-300">
                         <i data-lucide="rotate-cw" class="w-4 h-4"></i> Volver a Ejecutar Diagnóstico
                     </button>
                 </div>
 
                 <!-- Diagnostic Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-dark-900 p-4 rounded-xl subtle-border">
-                        <span class="text-xs text-slate-400">Base de Datos MySQL</span>
-                        <div class="text-lg font-bold text-emerald-400 mt-1 flex items-center gap-2" id="diag-db-status">
+                    <div class="bg-white p-4 rounded-xl subtle-border">
+                        <span class="text-xs text-slate-600">Base de Datos MySQL</span>
+                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-db-status">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Conectada
                         </div>
                         <p class="text-[11px] text-slate-500 font-mono mt-1">Hostinger Database Active</p>
                     </div>
 
-                    <div class="bg-dark-900 p-4 rounded-xl subtle-border">
-                        <span class="text-xs text-slate-400">Endpoint Telemetría (1Hz)</span>
-                        <div class="text-lg font-bold text-emerald-400 mt-1 flex items-center gap-2" id="diag-api-status">
+                    <div class="bg-white p-4 rounded-xl subtle-border">
+                        <span class="text-xs text-slate-600">Endpoint Telemetría (1Hz)</span>
+                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-api-status">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 200 OK
                         </div>
                         <p class="text-[11px] text-slate-500 font-mono mt-1">/api/telemetry.php</p>
                     </div>
 
-                    <div class="bg-dark-900 p-4 rounded-xl subtle-border">
-                        <span class="text-xs text-slate-400">Canal de Comandos MDM</span>
-                        <div class="text-lg font-bold text-emerald-400 mt-1 flex items-center gap-2" id="diag-mdm-status">
+                    <div class="bg-white p-4 rounded-xl subtle-border">
+                        <span class="text-xs text-slate-600">Canal de Comandos MDM</span>
+                        <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2" id="diag-mdm-status">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Activo
                         </div>
                         <p class="text-[11px] text-slate-500 font-mono mt-1">/api/devices.php</p>
@@ -517,12 +520,12 @@ try {
                 </div>
 
                 <!-- Recent Raw Telemetry Log Viewer -->
-                <div class="bg-dark-900 rounded-xl subtle-border p-4 space-y-2">
+                <div class="bg-white rounded-xl subtle-border p-4 space-y-2">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold text-white uppercase font-mono">Últimos Paquetes GPS Recibidos en Vivo</h3>
-                        <span class="text-[10px] text-slate-400 font-mono">Buffer de los últimos 20 pings</span>
+                        <h3 class="text-xs font-bold text-slate-900 uppercase font-mono">Últimos Paquetes GPS Recibidos en Vivo</h3>
+                        <span class="text-[10px] text-slate-600 font-mono">Buffer de los últimos 20 pings</span>
                     </div>
-                    <pre id="raw-telemetry-log" class="p-4 bg-dark-950 rounded-lg text-emerald-400 text-xs font-mono overflow-x-auto max-h-96 border border-dark-800">Esperando transmisiones...</pre>
+                    <pre id="raw-telemetry-log" class="p-4 bg-slate-50 rounded-lg text-emerald-600 text-xs font-mono overflow-x-auto max-h-96 border border-slate-200">Esperando transmisiones...</pre>
                 </div>
             </div>
         </div>
@@ -533,18 +536,18 @@ try {
     <!-- MODAL: MDM REMOTE COMMANDS -->
     <!-- ============================================================ -->
     <div id="modal-mdm" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-dark-900 rounded-xl subtle-border w-full max-w-lg shadow-2xl p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-dark-800 pb-3">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-lg shadow-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2">
-                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
                         <i data-lucide="shield" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-white">Comandos Remotos MDM</h3>
-                        <p class="text-xs text-slate-400 font-mono" id="mdm-modal-target-uid">Dispositivo: ---</p>
+                        <h3 class="text-base font-bold text-slate-900">Comandos Remotos MDM</h3>
+                        <p class="text-xs text-slate-600 font-mono" id="mdm-modal-target-uid">Dispositivo: ---</p>
                     </div>
                 </div>
-                <button onclick="closeMdmModal()" class="text-slate-400 hover:text-white p-1">
+                <button onclick="closeMdmModal()" class="text-slate-600 hover:text-slate-900 p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -552,47 +555,58 @@ try {
             <!-- Command Options -->
             <div class="space-y-3">
                 <!-- 1. Enviar Alerta de Texto -->
-                <div class="p-3 bg-dark-950 rounded-lg border border-dark-800 space-y-2">
-                    <label class="block text-xs font-semibold text-white flex items-center gap-1.5">
-                        <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-400"></i> Enviar Mensaje Prioritario al Chofer
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-600"></i> Enviar Mensaje Prioritario al Chofer
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="mdm-input-msg" placeholder="Ej. Reportarse a base de inmediato..." class="flex-1 bg-dark-900 text-xs text-white px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-emerald-500">
-                        <button onclick="sendMdmCommand('message')" class="px-3 py-2 bg-dark-800 hover:bg-dark-700 text-xs text-white font-semibold rounded-md border border-dark-700">Enviar</button>
+                        <input type="text" id="mdm-input-msg" placeholder="Ej. Reportarse a base de inmediato..." class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border focus:outline-none focus:border-emerald-500">
+                        <button onclick="sendMdmCommand('message')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-xs text-slate-900 font-semibold rounded-md border border-slate-300">Enviar</button>
                     </div>
                 </div>
 
                 <!-- 2. Sonar Sirena de Alarma -->
-                <div class="flex items-center justify-between p-3 bg-dark-950 rounded-lg border border-dark-800">
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <div>
-                        <div class="text-xs font-semibold text-white flex items-center gap-1.5">
+                        <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
                             <i data-lucide="volume-2" class="w-3.5 h-3.5 text-amber-400"></i> Alarma Sonora en Cabina
                         </div>
-                        <p class="text-[11px] text-slate-400">Suena la bocina del teléfono a máximo volumen</p>
+                        <p class="text-[11px] text-slate-600">Suena la bocina del teléfono a máximo volumen</p>
                     </div>
-                    <button onclick="sendMdmCommand('siren')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-md">Sonar 15s</button>
+                    <button onclick="sendMdmCommand('siren')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-900 text-xs font-semibold rounded-md">Sonar 15s</button>
                 </div>
 
                 <!-- 3. Solicitar Captura de Pantalla -->
-                <div class="flex items-center justify-between p-3 bg-dark-950 rounded-lg border border-dark-800">
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <div>
-                        <div class="text-xs font-semibold text-white flex items-center gap-1.5">
-                            <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-400"></i> Captura de Pantalla en Vivo
+                        <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-600"></i> Captura de Pantalla en Vivo
                         </div>
-                        <p class="text-[11px] text-slate-400">Toma una foto de lo que el chofer está viendo ahora</p>
+                        <p class="text-[11px] text-slate-600">Toma una foto de lo que el chofer está viendo ahora</p>
                     </div>
-                    <button onclick="sendMdmCommand('screenshot')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-md">Solicitar</button>
+                    <button onclick="sendMdmCommand('screenshot')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-900 text-xs font-semibold rounded-md">Solicitar</button>
                 </div>
 
                 <!-- 4. Fijar Paquete de App de Ventas -->
-                <div class="p-3 bg-dark-950 rounded-lg border border-dark-800 space-y-2">
-                    <label class="block text-xs font-semibold text-white flex items-center gap-1.5">
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-900 flex items-center gap-1.5">
                         <i data-lucide="package" class="w-3.5 h-3.5 text-indigo-400"></i> Fijar App de Ventas Autorizada en Kiosco
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="mdm-input-pkg" placeholder="Ej. com.rutacontrol.ventas" class="flex-1 bg-dark-900 text-xs text-white px-3 py-2 rounded-md subtle-border font-mono">
-                        <button onclick="sendMdmCommand('set_package')" class="px-3 py-2 bg-dark-800 hover:bg-dark-700 text-xs text-white font-semibold rounded-md border border-dark-700">Fijar</button>
+                        <input type="text" id="mdm-input-pkg" placeholder="Ej. com.rutacontrol.ventas" class="flex-1 bg-white text-xs text-slate-900 px-3 py-2 rounded-md subtle-border font-mono">
+                        <button onclick="sendMdmCommand('set_package')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-xs text-slate-900 font-semibold rounded-md border border-slate-300">Fijar</button>
                     </div>
+                </div>
+
+                <!-- 5. Forzar Instalación APK (MDM) -->
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div>
+                        <div class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-600"></i> Instalar APK Silencioso
+                        </div>
+                        <p class="text-[11px] text-slate-600">Fuerza la descarga e instalación del último APK en producción</p>
+                    </div>
+                    <button onclick="sendMdmCommand('force_ota')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md">Instalar</button>
                 </div>
             </div>
 
@@ -605,13 +619,13 @@ try {
     <!-- MODAL: SCREENSHOT VIEWER -->
     <!-- ============================================================ -->
     <div id="modal-screenshot" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-dark-900 rounded-xl subtle-border w-full max-w-2xl shadow-2xl p-4 space-y-3">
-            <div class="flex items-center justify-between border-b border-dark-800 pb-2">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-2xl shadow-2xl p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
                 <div class="flex items-center gap-2">
-                    <i data-lucide="camera" class="w-4 h-4 text-emerald-400"></i>
-                    <h3 class="text-sm font-bold text-white" id="screenshot-title">Captura de Pantalla Bajo Demanda</h3>
+                    <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+                    <h3 class="text-sm font-bold text-slate-900" id="screenshot-title">Captura de Pantalla Bajo Demanda</h3>
                 </div>
-                <button onclick="closeScreenshotModal()" class="text-slate-400 hover:text-white p-1">
+                <button onclick="closeScreenshotModal()" class="text-slate-600 hover:text-slate-900 p-1">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -620,9 +634,9 @@ try {
                 <img id="screenshot-img" src="" alt="Captura de Pantalla" class="max-h-[500px] object-contain rounded">
             </div>
 
-            <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-mono">
                 <span id="screenshot-timestamp">Tomada: ---</span>
-                <button onclick="refreshScreenshot()" class="text-emerald-400 hover:underline flex items-center gap-1 font-sans">
+                <button onclick="refreshScreenshot()" class="text-emerald-600 hover:underline flex items-center gap-1 font-sans">
                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar captura
                 </button>
             </div>
@@ -633,15 +647,15 @@ try {
     <!-- MODAL: QR PROVISIONING CODE -->
     <!-- ============================================================ -->
     <div id="modal-qr" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-dark-900 rounded-xl subtle-border w-full max-w-md shadow-2xl p-6 text-center space-y-4">
-            <div class="flex items-center justify-between border-b border-dark-800 pb-3">
-                <h3 class="text-base font-bold text-white">QR de Aprovisionamiento Device Owner</h3>
-                <button onclick="closeQrModal()" class="text-slate-400 hover:text-white p-1">
+        <div class="bg-white rounded-xl subtle-border w-full max-w-md shadow-2xl p-6 text-center space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 class="text-base font-bold text-slate-900">QR de Aprovisionamiento Device Owner</h3>
+                <button onclick="closeQrModal()" class="text-slate-600 hover:text-slate-900 p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-slate-600">
                 Enciende un teléfono de fábrica o recién formateado, pulsa 6 veces en la pantalla de bienvenida y escanea este código QR:
             </p>
 
@@ -649,7 +663,7 @@ try {
                 <div id="qrcode-container"></div>
             </div>
 
-            <p class="text-[11px] font-mono text-emerald-400 break-all">
+            <p class="text-[11px] font-mono text-emerald-600 break-all">
                 https://zoltrak.websolutionsgarcia.com/api/apks.php?action=download_active
             </p>
         </div>
@@ -682,7 +696,7 @@ try {
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
             // Dark Tiles (CartoDB Dark Matter)
-            darkTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            darkTileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 subdomains: 'abcd'
             }).addTo(map);
@@ -718,7 +732,7 @@ try {
                             <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
                         </svg>
                     </div>
-                    <div class="absolute -bottom-2 bg-[#070a10] px-1.5 py-0.2 rounded text-[9px] font-mono font-bold text-white border border-white/10">
+                    <div class="absolute -bottom-2 bg-white px-1.5 py-0.2 rounded text-[9px] font-mono font-bold text-slate-900 border border-slate-300">
                         ${Math.round(speed)}k
                     </div>
                 </div>
@@ -846,15 +860,15 @@ try {
                 const isSelected = selectedDeviceUid === dev.device_uid;
 
                 return `
-                    <div onclick="selectDevice('${dev.device_uid}')" class="p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-emerald-500/10 border border-emerald-500/30' : 'hover:bg-dark-850 bg-dark-900/60 subtle-border'}">
+                    <div onclick="selectDevice('${dev.device_uid}')" class="p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-emerald-500/10 border border-emerald-500/30' : 'hover:bg-slate-100 bg-white/60 subtle-border'}">
                         <div class="flex items-start justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full ${statusDot}"></span>
-                                <span class="font-bold text-white text-xs">${dev.driver_name || 'Sin Asignar'}</span>
+                                <span class="font-bold text-slate-900 text-xs">${dev.driver_name || 'Sin Asignar'}</span>
                             </div>
-                            <span class="text-[11px] font-mono font-bold ${isOnline && isMoving ? 'text-emerald-400' : 'text-slate-400'}">${statusText}</span>
+                            <span class="text-[11px] font-mono font-bold ${isOnline && isMoving ? 'text-emerald-600' : 'text-slate-600'}">${statusText}</span>
                         </div>
-                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono mt-1.5">
+                        <div class="flex items-center justify-between text-[11px] text-slate-600 font-mono mt-1.5">
                             <span>${dev.vehicle_plate ? `PLACA: ${dev.vehicle_plate}` : `UID: ${dev.device_uid.substring(0, 10)}...`}</span>
                             <span class="text-[10px] text-slate-500">${formatTimeAgo(dev.last_ping_at)}</span>
                         </div>
@@ -887,9 +901,9 @@ try {
             document.getElementById('hud-vehicle-plate').innerText = `PLACA: ${dev.vehicle_plate || 'S/P'} • RUTA: ${dev.route_code || 'Gral'}`;
             
             const speed = parseFloat(dev.current_speed_kmh || dev.last_speed_kmh || 0);
-            document.getElementById('hud-speed').innerHTML = `${Math.round(speed)} <span class="text-[10px] font-normal text-slate-400">km/h</span>`;
+            document.getElementById('hud-speed').innerHTML = `${Math.round(speed)} <span class="text-[10px] font-normal text-slate-600">km/h</span>`;
             document.getElementById('hud-battery').innerText = `${dev.battery_level || 100}%`;
-            document.getElementById('hud-fuel').innerHTML = `${(dev.fuel_rate || 1.2).toFixed(1)} <span class="text-[10px] font-normal text-slate-400">L/h</span>`;
+            document.getElementById('hud-fuel').innerHTML = `${(dev.fuel_rate || 1.2).toFixed(1)} <span class="text-[10px] font-normal text-slate-600">L/h</span>`;
             
             document.getElementById('hud-device-uid').innerText = dev.device_uid;
             document.getElementById('hud-last-ping').innerText = formatTimeAgo(dev.last_ping_at);
@@ -918,6 +932,8 @@ try {
             if (!selectedDeviceUid) return;
 
             let commandString = '';
+            let actionType = 'send_command';
+
             if (type === 'message') {
                 const msg = document.getElementById('mdm-input-msg').value.trim();
                 if (!msg) return alert('Escribe un mensaje');
@@ -926,31 +942,40 @@ try {
                 commandString = 'SIREN:15';
             } else if (type === 'screenshot') {
                 commandString = 'SCREENSHOT';
+                actionType = 'request_screenshot';
             } else if (type === 'set_package') {
                 const pkg = document.getElementById('mdm-input-pkg').value.trim();
                 if (!pkg) return alert('Escribe el nombre de paquete');
                 commandString = `SET_PACKAGE:${pkg}`;
+            } else if (type === 'force_ota') {
+                commandString = 'INSTALL_APK_OTA';
+                actionType = 'force_ota_update';
             }
 
             const feedback = document.getElementById('mdm-feedback');
-            feedback.className = 'p-3 rounded-lg text-xs font-mono bg-dark-950 text-amber-400 border border-amber-500/30';
+            feedback.className = 'p-3 rounded-lg text-xs font-mono bg-slate-50 text-amber-500 border border-amber-500/30';
             feedback.innerText = `Despachando orden: ${commandString}...`;
             feedback.classList.remove('hidden');
 
             try {
-                const formData = new FormData();
-                formData.append('device_uid', selectedDeviceUid);
-                formData.append('command', commandString);
+                const payload = {
+                    action: actionType,
+                    device_uid: selectedDeviceUid === 'ALL_DEVICES' ? null : selectedDeviceUid,
+                    command: commandString
+                };
 
-                const res = await fetch('/api/devices.php?action=send_command', {
+                const res = await fetch('/api/devices.php', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
                 const resJson = await res.json();
 
                 if (resJson.status === 'ok') {
-                    feedback.className = 'p-3 rounded-lg text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
-                    feedback.innerText = `✅ Comando ${commandString} encolado exitosamente. Se ejecutará en el siguiente ping del teléfono.`;
+                    feedback.className = 'p-3 rounded-lg text-xs font-mono bg-emerald-50 text-emerald-600 border border-emerald-500/30';
+                    feedback.innerText = `✅ ${resJson.message || 'Comando encolado exitosamente.'}`;
                     
                     if (type === 'screenshot') {
                         setTimeout(() => {
@@ -1032,16 +1057,16 @@ try {
         function switchTab(tabId) {
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('bg-dark-800', 'text-white', 'shadow-sm');
-                b.classList.add('text-slate-400');
+                b.classList.remove('bg-slate-200', 'text-slate-900', 'shadow-sm');
+                b.classList.add('text-slate-600');
             });
 
             const targetView = document.getElementById(`view-${tabId}`);
             const targetBtn = document.getElementById(`tab-btn-${tabId}`);
             if (targetView && targetBtn) {
                 targetView.classList.remove('hidden');
-                targetBtn.classList.add('bg-dark-800', 'text-white', 'shadow-sm');
-                targetBtn.classList.remove('text-slate-400');
+                targetBtn.classList.add('bg-slate-200', 'text-slate-900', 'shadow-sm');
+                targetBtn.classList.remove('text-slate-600');
             }
 
             if (tabId === 'map' && map) {
@@ -1061,19 +1086,19 @@ try {
             tbody.innerHTML = devicesData.map(dev => {
                 const isOnline = isDeviceOnline(dev.last_ping_at);
                 const statusBadge = isOnline 
-                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">EN LÍNEA</span>'
-                    : '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-bold border border-slate-700">OFFLINE</span>';
+                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-bold border border-emerald-500/20">EN LÍNEA</span>'
+                    : '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-600 text-[10px] font-bold border border-slate-700">OFFLINE</span>';
 
                 return `
-                    <tr class="hover:bg-dark-850/50 transition-colors">
+                    <tr class="hover:bg-slate-100/50 transition-colors">
                         <td class="px-4 py-3">${statusBadge}</td>
-                        <td class="px-4 py-3 text-white font-bold">${dev.device_uid}</td>
-                        <td class="px-4 py-3 font-sans text-slate-300">${dev.driver_name || 'Sin Asignar'}</td>
+                        <td class="px-4 py-3 text-slate-900 font-bold">${dev.device_uid}</td>
+                        <td class="px-4 py-3 font-sans text-slate-700">${dev.driver_name || 'Sin Asignar'}</td>
                         <td class="px-4 py-3">${dev.vehicle_plate || '---'}</td>
-                        <td class="px-4 py-3 text-emerald-400">${dev.apk_version || '1.0.0'}</td>
-                        <td class="px-4 py-3 text-slate-400">${formatTimeAgo(dev.last_ping_at)}</td>
+                        <td class="px-4 py-3 text-emerald-600">${dev.apk_version || '1.0.0'}</td>
+                        <td class="px-4 py-3 text-slate-600">${formatTimeAgo(dev.last_ping_at)}</td>
                         <td class="px-4 py-3 text-right">
-                            <button onclick="selectedDeviceUid='${dev.device_uid}'; openMdmModalFromHud();" class="px-2.5 py-1 bg-dark-800 hover:bg-dark-700 text-slate-200 rounded border border-dark-700 text-xs">
+                            <button onclick="selectedDeviceUid='${dev.device_uid}'; openMdmModalFromHud();" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded border border-slate-300 text-xs">
                                 Comandos MDM
                             </button>
                         </td>
@@ -1091,19 +1116,19 @@ try {
 
                 if (data && data.apks) {
                     tbody.innerHTML = data.apks.map(apk => `
-                        <tr class="hover:bg-dark-850/50">
-                            <td class="px-4 py-3 text-white font-bold">v${apk.version_name}</td>
+                        <tr class="hover:bg-slate-100/50">
+                            <td class="px-4 py-3 text-slate-900 font-bold">v${apk.version_name}</td>
                             <td class="px-4 py-3">${apk.version_code}</td>
-                            <td class="px-4 py-3 text-slate-400">${apk.file_name}</td>
-                            <td class="px-4 py-3 text-slate-400">${apk.created_at}</td>
+                            <td class="px-4 py-3 text-slate-600">${apk.file_name}</td>
+                            <td class="px-4 py-3 text-slate-600">${apk.created_at}</td>
                             <td class="px-4 py-3">
                                 ${apk.is_active == 1 
-                                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">ACTIVA (PRODUCCIÓN)</span>'
+                                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-bold">ACTIVA (PRODUCCIÓN)</span>'
                                     : '<span class="text-slate-500 text-[10px]">Archivada</span>'
                                 }
                             </td>
                             <td class="px-4 py-3 text-right">
-                                <a href="/uploads/apks/${apk.file_name}" download class="text-emerald-400 hover:underline">Descargar .apk</a>
+                                <a href="/uploads/apks/${apk.file_name}" download class="text-emerald-600 hover:underline">Descargar .apk</a>
                             </td>
                         </tr>
                     `).join('');
@@ -1174,13 +1199,13 @@ try {
         function setFilter(filter) {
             activeFilter = filter;
             document.querySelectorAll('.filter-chip').forEach(b => {
-                b.classList.remove('bg-dark-800', 'text-white');
-                b.classList.add('text-slate-400');
+                b.classList.remove('bg-slate-200', 'text-slate-900');
+                b.classList.add('text-slate-600');
             });
             const activeBtn = document.getElementById(`filter-${filter}`);
             if (activeBtn) {
-                activeBtn.classList.add('bg-dark-800', 'text-white');
-                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('bg-slate-200', 'text-slate-900');
+                activeBtn.classList.remove('text-slate-600');
             }
             renderFleetList();
             updateMapMarkers();
