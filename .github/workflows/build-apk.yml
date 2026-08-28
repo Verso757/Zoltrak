@@ -44,9 +44,16 @@ jobs:
               -dname "CN=RutaControl Enterprise, OU=Fleet MDM, O=Garcia Solutions, L=Monterrey, ST=Nuevo Leon, C=MX"
           fi
           echo "sdk.dir=$ANDROID_HOME" > local.properties
-          chmod +x gradlew || true
-          ./gradlew assembleDebug --stacktrace
-          ./gradlew assembleRelease --stacktrace
+          # Si gradlew no existe, usar el gradle CLI instalado por setup-gradle
+          if [ ! -f gradlew ]; then
+            gradle wrapper --gradle-version 8.4 --distribution-type bin || true
+          fi
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug assembleRelease --stacktrace --no-daemon
+          else
+            gradle assembleDebug assembleRelease --stacktrace --no-daemon
+          fi
 
       - name: Extraer y Mostrar Hashes de Firma (Signature Checksums)
         run: |
