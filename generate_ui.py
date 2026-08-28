@@ -1,41 +1,29 @@
-<?php
-/**
- * ============================================================
- * RUTA CONTROL - EXECUTIVE TELEMATICS & MDM PLATFORM
- * Dominio: https://zoltrak.websolutionsgarcia.com/
- * Archivo: index.php
- * ============================================================
- */
+import re
 
-require_once __DIR__ . '/config/db.php';
-$pdo = getDBConnection();
+with open('/tmp/original_index.php', 'r', encoding='utf-8') as f:
+    code = f.read()
 
-// Estadísticas iniciales de flota
-$totalDevices = 0;
-$activeNow = 0;
-$movingNow = 0;
-$offlineNow = 0;
+# Extract PHP header
+php_header_match = re.search(r'<\?php.*?\?>', code, re.DOTALL)
+php_header = php_header_match.group(0)
 
-try {
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM devices");
-    $totalDevices = (int)($stmt->fetch()['total'] ?? 0);
+# Extract JavaScript
+js_match = re.search(r'<script>(.*?)</script>', code, re.DOTALL)
+js_code = js_match.group(1)
 
-    $stmt = $pdo->query("SELECT COUNT(*) as active FROM devices WHERE last_ping_at >= NOW() - INTERVAL 5 MINUTE");
-    $activeNow = (int)($stmt->fetch()['active'] ?? 0);
+# Now, we will modify the JS code to use SweetAlert2!
+js_code = js_code.replace('prompt("Para asignar, ingresa el ID NUMÉRICO del conductor (lo puedes ver en la pestaña Conductores):")', 'await Swal.fire({title: "Asignar Conductor", input: "number", inputLabel: "ID Numérico del conductor", showCancelButton: true}).then(r => r.value)')
+js_code = js_code.replace('if (confirm("¿Estás seguro de borrar este conductor? Esto desvinculará sus dispositivos asociados."))', 'if ((await Swal.fire({title: "¿Borrar conductor?", text: "Esto desvinculará sus dispositivos.", icon: "warning", showCancelButton: true, confirmButtonColor: "#ef4444", confirmButtonText: "Sí, borrar"})).isConfirmed)')
+js_code = js_code.replace('if (confirm("¿Estás seguro de borrar este dispositivo de prueba?"))', 'if ((await Swal.fire({title: "¿Borrar dispositivo?", text: "Se borrará su historial de telemetría.", icon: "warning", showCancelButton: true, confirmButtonColor: "#ef4444", confirmButtonText: "Sí, borrar"})).isConfirmed)')
+js_code = js_code.replace('alert("Dispositivo borrado");', 'Swal.fire("Borrado", "Dispositivo eliminado", "success");')
+js_code = js_code.replace('alert("Conductor asignado correctamente");', 'Swal.fire("¡Éxito!", "Conductor asignado correctamente", "success");')
+js_code = js_code.replace('alert(data.message || "Error");', 'Swal.fire("Atención", data.message || "Error", "info");')
+js_code = js_code.replace('alert("Comando enviado: " + data.message);', 'Swal.fire("¡Enviado!", data.message, "success");')
+js_code = js_code.replace('alert("Selecciona un APK válido (menor a 50MB)");', 'Swal.fire("Error", "Selecciona un APK válido (menor a 50MB)", "error");')
+js_code = js_code.replace('alert("Error de red");', 'Swal.fire("Error", "Fallo de conexión al servidor", "error");')
 
-    $stmt = $pdo->query("
-        SELECT COUNT(*) as moving 
-        FROM devices dev 
-        JOIN drivers d ON dev.assigned_driver_id = d.id 
-        WHERE dev.last_ping_at >= NOW() - INTERVAL 5 MINUTE AND d.current_speed_kmh > 5
-    ");
-    $movingNow = (int)($stmt->fetch()['moving'] ?? 0);
-
-    $offlineNow = max(0, $totalDevices - $activeNow);
-} catch (Exception $e) {
-    // Si la BD aún no tiene tablas, se maneja fluidamente en el front
-}
-?>
+# Let's write the new modern HTML template
+html_template = f"""{php_header}
 <!DOCTYPE html>
 <html lang="es" class="dark h-full bg-slate-900 text-slate-100 antialiased">
 <head>
@@ -51,22 +39,22 @@ try {
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
+        tailwind.config = {{
             darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
+            theme: {{
+                extend: {{
+                    fontFamily: {{
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace']
-                    },
-                    colors: {
-                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' },
+                    }},
+                    colors: {{
+                        brand: {{ 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' }},
                         darkbg: '#0f172a',
                         darkcard: '#1e293b'
-                    }
-                }
-            }
-        }
+                    }}
+                }}
+            }}
+        }}
     </script>
     
     <!-- Leaflet JS & CSS -->
@@ -81,20 +69,20 @@ try {
 
     <style>
         /* Estilos Base para mapas oscuros */
-        .leaflet-container { background: #0f172a !important; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution {
+        .leaflet-container {{ background: #0f172a !important; font-family: 'Plus Jakarta Sans', sans-serif; }}
+        .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution {{
             filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-        }
-        .custom-leaflet-marker { background: transparent; border: none; }
-        .marker-glow { filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.6)); }
-        .marker-glow-offline { filter: drop-shadow(0 0 4px rgba(100, 116, 139, 0.6)); }
-        .marker-glow-speed { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7)); }
+        }}
+        .custom-leaflet-marker {{ background: transparent; border: none; }}
+        .marker-glow {{ filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.6)); }}
+        .marker-glow-offline {{ filter: drop-shadow(0 0 4px rgba(100, 116, 139, 0.6)); }}
+        .marker-glow-speed {{ filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7)); }}
         
         /* Ocultar barra de scroll pero mantener funcionalidad */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar {{ width: 6px; height: 6px; }}
+        ::-webkit-scrollbar-track {{ background: transparent; }}
+        ::-webkit-scrollbar-thumb {{ background: #334155; border-radius: 4px; }}
+        ::-webkit-scrollbar-thumb:hover {{ background: #475569; }}
     </style>
 </head>
 <body class="h-full flex overflow-hidden selection:bg-brand-500 selection:text-white">
@@ -506,34 +494,11 @@ try {
 
     <!-- SCRIPT INYECTADO -->
     <script>
-
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#ecfdf5',
-                            500: '#10b981',
-                            600: '#059669',
-                        },
-                        dark: {
-                            950: '#070a10',
-                            900: '#0b0f19',
-                            850: '#101623',
-                            800: '#161f30',
-                            700: '#222f46',
-                            600: '#33435e',
-                        }
-                    }
-                }
-            }
-        }
-    
+{js_code}
     </script>
 </body>
 </html>
+"""
+
+with open('hostinger_deploy/index.php.new', 'w', encoding='utf-8') as f:
+    f.write(html_template)
