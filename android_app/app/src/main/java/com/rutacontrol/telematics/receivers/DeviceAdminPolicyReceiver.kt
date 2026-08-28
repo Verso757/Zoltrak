@@ -36,7 +36,8 @@ class DeviceAdminPolicyReceiver : DeviceAdminReceiver() {
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_FACTORY_RESET)
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_SAFE_BOOT)
             dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA)
-            dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_USB_FILE_TRANSFER)
+            // Permitimos USB para mantenimiento y depuración ADB / MTP de supervisor
+            dpm.clearUserRestriction(adminComponent, UserManager.DISALLOW_USB_FILE_TRANSFER)
 
             // =========================================================================
             // 2. FORZAR DATOS MÓVILES Y GPS SIEMPRE ACTIVOS (NO PERMITIR APAGARLOS)

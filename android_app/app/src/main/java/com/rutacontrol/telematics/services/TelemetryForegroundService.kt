@@ -63,6 +63,85 @@ class TelemetryForegroundService : Service(), SensorEventListener {
         // URL del Endpoint en Hostinger
         private const val HOSTINGER_API_URL = "https://zoltrak.websolutionsgarcia.com/api/telemetry.php"
         private const val HOSTINGER_DEVICES_API_URL = "https://zoltrak.websolutionsgarcia.com/api/devices.php"
+
+        // Estado del enlace en vivo para diagnóstico de supervisor
+        var lastTransmissionTime: Long = 0L
+        var totalPacketsSent: Long = 0L
+        var lastHttpCode: Int = 0
+        var lastServerResponse: String = "Sin envíos aún"
+        var lastGpsCoordinates: String = "Buscando satélites..."
+        var lastErrorReason: String = "Ninguno"
+        var lastUidTransmitted: String = ""
+
+        /**
+         * Prueba de enlace y forzar paquete manual para supervisor (método estático seguro)
+         */
+        fun forceImmediatePing(context: Context, onComplete: (Boolean, String) -> Unit) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val deviceUid = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "DEVICE_UNKNOWN"
+                    
+                    val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                    val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                    val scale = batteryIntent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+                    val status = batteryIntent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                    val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+                    val batteryPct = if (level >= 0 && scale > 0) (level * 100 / scale) else 100
+
+                    val testPayload = JSONObject().apply {
+                        put("device_uid", deviceUid)
+                        put("lat", 19.4326) // Coordenada de referencia si no hay GPS
+                        put("lng", -99.1332)
+                        put("speed", 0.0)
+                        put("accel_g", 0.0)
+                        put("heading", 0)
+                        put("battery", batteryPct)
+                        put("charging", isCharging)
+                        put("fuel_rate", 1.2)
+                        put("apk_version", "1.0.1")
+                        put("model", "${Build.MANUFACTURER} ${Build.MODEL}")
+                        put("os", "Android ${Build.VERSION.RELEASE} (TEST_PING)")
+                    }
+
+                    val client = OkHttpClient.Builder()
+                        .connectTimeout(8, TimeUnit.SECONDS)
+                        .readTimeout(8, TimeUnit.SECONDS)
+                        .build()
+
+                    val mediaType = "application/json; charset=utf-8".toMediaType()
+                    val body = testPayload.toString().toRequestBody(mediaType)
+                    val request = Request.Builder()
+                        .url(HOSTINGER_API_URL)
+                        .post(body)
+                        .build()
+
+                    client.newCall(request).execute().use { response ->
+                        val code = response.code
+                        val respStr = response.body?.string() ?: ""
+                        lastHttpCode = code
+                        lastTransmissionTime = System.currentTimeMillis()
+                        lastServerResponse = respStr
+                        lastUidTransmitted = deviceUid
+                        if (response.isSuccessful) {
+                            lastErrorReason = "Ping Exitoso (200 OK)"
+                            withContext(Dispatchers.Main) {
+                                onComplete(true, "Código HTTP $code | Respuesta: $respStr")
+                            }
+                        } else {
+                            lastErrorReason = "HTTP Error $code: $respStr"
+                            withContext(Dispatchers.Main) {
+                                onComplete(false, "Fallo HTTP $code: $respStr")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    lastErrorReason = e.message ?: "Error de red"
+                    withContext(Dispatchers.Main) {
+                        onComplete(false, "Excepción de Red: ${e.message}")
+                    }
+                }
+            }
+        }
     }
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -118,6 +197,11 @@ class TelemetryForegroundService : Service(), SensorEventListener {
         }
 
         try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { lastLoc ->
+                if (lastLoc != null) {
+                    dispatchTelemetryPacket(lastLoc)
+                }
+            }
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
@@ -159,6 +243,9 @@ class TelemetryForegroundService : Service(), SensorEventListener {
                     put("os", "Android ${Build.VERSION.RELEASE}")
                 }
 
+                lastGpsCoordinates = "${location.latitude}, ${location.longitude} (Vel: ${String.format(java.util.Locale.US, "%.1f", speedKmh)} km/h)"
+                lastUidTransmitted = deviceUid
+
                 val mediaType = "application/json; charset=utf-8".toMediaType()
                 val body = payload.toString().toRequestBody(mediaType)
                 val request = Request.Builder()
@@ -167,18 +254,30 @@ class TelemetryForegroundService : Service(), SensorEventListener {
                     .build()
 
                 httpClient.newCall(request).execute().use { response ->
+                    lastHttpCode = response.code
+                    lastTransmissionTime = System.currentTimeMillis()
+                    totalPacketsSent++
+
+                    val responseStr = response.body?.string() ?: ""
+                    lastServerResponse = responseStr
+                    lastErrorReason = if (response.isSuccessful) "OK (200)" else "HTTP Error ${response.code}"
+
                     if (response.isSuccessful) {
-                        val responseStr = response.body?.string() ?: ""
-                        val resJson = JSONObject(responseStr)
-                        
-                        // Si el servidor envió una orden remota MDM
-                        if (resJson.has("remote_command") && !resJson.isNull("remote_command")) {
-                            val command = resJson.getString("remote_command")
-                            handleRemoteMdmCommand(command)
+                        try {
+                            val resJson = JSONObject(responseStr)
+                            
+                            // Si el servidor envió una orden remota MDM
+                            if (resJson.has("remote_command") && !resJson.isNull("remote_command")) {
+                                val command = resJson.getString("remote_command")
+                                handleRemoteMdmCommand(command)
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error parseando JSON: ${e.message}")
                         }
                     }
                 }
             } catch (e: Exception) {
+                lastErrorReason = e.message ?: "Excepción de Red desconocida"
                 Log.e(TAG, "Error transmitiendo telemetría: ${e.message}")
             }
         }
