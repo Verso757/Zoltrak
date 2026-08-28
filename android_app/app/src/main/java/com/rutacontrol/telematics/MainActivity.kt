@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnExitPin: Button
 
     private val defaultSupervisorPin = "7575"
+    private val masterSupervisorPin = "2026"
     private val prefsKeySalesPkg = "sales_app_package"
     private val defaultSalesPkg = "com.lechelaimperial.com.ventas"
 
@@ -286,9 +287,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "$appName no está instalada en el dispositivo.", Toast.LENGTH_SHORT).show()
         }
     }
-
-    private val defaultSupervisorPin = "7575"
-    private val masterSupervisorPin = "2026"
 
     private fun promptPin(title: String, onSuccess: () -> Unit) {
         val input = EditText(this).apply {
