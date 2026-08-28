@@ -25,7 +25,6 @@ android {
             keyPassword "rutacontrol2026"
             v1SigningEnabled true
             v2SigningEnabled true
-            v3SigningEnabled true
         }
         debug {
             storeFile file("rutacontrol_release.keystore")
@@ -34,7 +33,6 @@ android {
             keyPassword "rutacontrol2026"
             v1SigningEnabled true
             v2SigningEnabled true
-            v3SigningEnabled true
         }
     }
 
