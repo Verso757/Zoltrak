@@ -602,8 +602,8 @@ class MainActivity : AppCompatActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     dpm.setLockTaskFeatures(
                         adminComponent,
-                        DevicePolicyManager.LOCK_TASK_FEATURE_NONE or
-                        DevicePolicyManager.LOCK_TASK_FEATURE_SYSTEM_INFO
+                        DevicePolicyManager.LOCK_TASK_FEATURE_SYSTEM_INFO or
+                        DevicePolicyManager.LOCK_TASK_FEATURE_HOME
                     )
                 }
 
